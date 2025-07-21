@@ -139,7 +139,7 @@ class WorkItem(db.Model):
     content = db.Column(db.Text)
     content_type = db.Column(db.String(50))  # 'document', 'board', 'mindmap', 'graph'
     tags = db.Column(db.Text)  # JSON array
-    metadata = db.Column(db.Text) # JSON metadata
+    item_metadata = db.Column(db.Text) # JSON metadata
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
@@ -152,7 +152,7 @@ class WorkItem(db.Model):
             'content': self.content,
             'content_type': self.content_type,
             'tags': json.loads(self.tags) if self.tags else [],
-            'metadata': json.loads(self.metadata) if self.metadata else {},
+            'metadata': json.loads(self.item_metadata) if self.item_metadata else {},
             'created_at': self.created_at.isoformat(),
             'updated_at': self.updated_at.isoformat()
         }
@@ -192,7 +192,7 @@ class RAGDocument(db.Model):
     title = db.Column(db.String(255))
     content = db.Column(db.Text)
     embedding = db.Column(db.Text)  # JSON array of embedding
-    metadata = db.Column(db.Text)  # JSON metadata
+    doc_metadata = db.Column(db.Text)  # JSON metadata
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
@@ -204,7 +204,7 @@ class RAGDocument(db.Model):
             'source_id': self.source_id,
             'title': self.title,
             'content': self.content[:500] + '...' if self.content and len(self.content) > 500 else self.content,
-            'metadata': json.loads(self.metadata) if self.metadata else {},
+            'metadata': json.loads(self.doc_metadata) if self.doc_metadata else {},
             'created_at': self.created_at.isoformat(),
             'updated_at': self.updated_at.isoformat()
         }

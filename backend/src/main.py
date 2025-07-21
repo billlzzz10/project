@@ -10,13 +10,13 @@ from .chat import chat_bp
 from .routes.profile import profile_bp
 from .routes.sharing import sharing_bp
 # Assuming other blueprints are in src/routes
-from .routes.analytics_service import analytics_bp
+from .routes.analytics import analytics_bp
 from .routes.automation import automation_bp
 from .routes.file_upload import file_upload_bp
 from .routes.integrations import integrations_bp
-from .routes.notification_service import notification_bp
+from .routes.notification import notification_bp
 from .routes.prompt_tool import prompt_tool_bp
-from .routes.visualization_service import visualization_bp
+from .routes.visualization import visualization_bp
 # Note: user_bp is missing from the provided file structure, assuming it exists
 # from .routes.user import user_bp
 

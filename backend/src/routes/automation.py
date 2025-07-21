@@ -1,9 +1,9 @@
 from flask import Blueprint, request, jsonify
-from src.services.scheduler_service import scheduler_service
-from src.services.external_integrations import IntegrationManager
+from ..services.scheduler_service import scheduler_service
+from ..services.external_integrations import IntegrationManager
 from datetime import datetime
 
-automation_bp = Blueprint('automation', __name__)
+automation_bp = Blueprint('automation', __name__, url_prefix='/api/automation')
 integration_manager = IntegrationManager()
 
 # Scheduler Management Routes

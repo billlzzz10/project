@@ -12,6 +12,7 @@ import csv
 import markdown
 from bs4 import BeautifulSoup
 import pandas as pd
+from flask import current_app
 from ..models import db, RAGDocument, UploadedFile
 from ..config import Config
 
@@ -20,8 +21,11 @@ class EnhancedRAGService:
         self.embedding_model = SentenceTransformer('all-MiniLM-L6-v2')
         self.index = None
         self.documents = []
-        self.notion_api_key = Config.NOTION_API_KEY
         self.initialize_faiss_index()
+
+    @property
+    def notion_api_key(self):
+        return current_app.config.get('NOTION_API_KEY')
     
     def initialize_faiss_index(self):
         """Initialize FAISS index for vector similarity search"""
@@ -458,6 +462,3 @@ class EnhancedRAGService:
             
         except Exception as e:
             print(f"Error rebuilding index: {e}")
-
-# Global instance
-# enhanced_rag_service = EnhancedRAGService()

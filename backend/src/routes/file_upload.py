@@ -3,11 +3,11 @@ import uuid
 from datetime import datetime
 from flask import Blueprint, request, jsonify, current_app
 from werkzeug.utils import secure_filename
-from src.models.user import db
-from src.models.enhanced_models import UploadedFile, RAGDocument
-from src.services.enhanced_rag_service import enhanced_rag_service
+from ..models import db, UploadedFile, RAGDocument
+from ..services.enhanced_rag_service import EnhancedRAGService
 
-file_upload_bp = Blueprint('file_upload', __name__)
+file_upload_bp = Blueprint('file_upload', __name__, url_prefix='/api/files')
+enhanced_rag_service = EnhancedRAGService()
 
 # Allowed file extensions
 ALLOWED_EXTENSIONS = {

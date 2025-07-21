@@ -2,13 +2,16 @@ import requests
 import json
 import os
 from datetime import datetime
-from src.config import Config
+from flask import current_app
 
 class GoogleDriveService:
     def __init__(self):
-        self.credentials_path = Config.GOOGLE_DRIVE_CREDENTIALS
         self.api_base = "https://www.googleapis.com/drive/v3"
         
+    @property
+    def credentials_path(self):
+        return current_app.config.get('GOOGLE_DRIVE_CREDENTIALS')
+
     def upload_file(self, file_content, filename, folder_id=None):
         """Upload file to Google Drive"""
         # This is a placeholder - in real implementation, you'd use Google Drive API
@@ -28,8 +31,11 @@ class GoogleDriveService:
 
 class GoogleSheetsService:
     def __init__(self):
-        self.credentials_path = Config.GOOGLE_SHEETS_CREDENTIALS
         self.api_base = "https://sheets.googleapis.com/v4/spreadsheets"
+
+    @property
+    def credentials_path(self):
+        return current_app.config.get('GOOGLE_SHEETS_CREDENTIALS')
         
     def update_sheet(self, spreadsheet_id, range_name, values):
         """Update Google Sheets with data"""
@@ -59,9 +65,15 @@ class GoogleSheetsService:
 
 class NotionService:
     def __init__(self):
-        self.api_key = Config.NOTION_API_KEY
         self.api_base = "https://api.notion.com/v1"
-        self.headers = {
+
+    @property
+    def api_key(self):
+        return current_app.config.get('NOTION_API_KEY')
+
+    @property
+    def headers(self):
+        return {
             "Authorization": f"Bearer {self.api_key}",
             "Notion-Version": "2022-06-28",
             "Content-Type": "application/json"
@@ -101,9 +113,15 @@ class NotionService:
 
 class AirtableService:
     def __init__(self):
-        self.api_key = Config.AIRTABLE_API_KEY
         self.api_base = "https://api.airtable.com/v0"
-        self.headers = {
+
+    @property
+    def api_key(self):
+        return current_app.config.get('AIRTABLE_API_KEY')
+
+    @property
+    def headers(self):
+        return {
             "Authorization": f"Bearer {self.api_key}",
             "Content-Type": "application/json"
         }
@@ -151,8 +169,7 @@ class IntegrationManager:
     
     def backup_all_data(self):
         """Backup all application data"""
-        from src.models.chat import ChatSession, ChatMessage, PromptTemplate, GeneratedTool
-        from src.models.user import User
+        from ..models import ChatSession, ChatMessage, PromptTemplate, GeneratedTool, User
         
         try:
             # Collect all data
@@ -193,7 +210,7 @@ class IntegrationManager:
             airtable_stats = self.airtable_service.get_records_count("default_base", "default_table")
             
             # Get local app stats
-            from src.models.chat import ChatSession, ChatMessage, PromptTemplate, GeneratedTool
+            from ..models import ChatSession, ChatMessage, PromptTemplate, GeneratedTool
             
             report_data = {
                 "date": datetime.utcnow().strftime("%Y-%m-%d"),
@@ -225,10 +242,10 @@ class IntegrationManager:
         results = {
             "google_drive": {"status": "simulated", "message": "Connection OK (simulated)"},
             "google_sheets": {"status": "simulated", "message": "Connection OK (simulated)"},
-            "notion": {"status": "simulated" if Config.NOTION_API_KEY else "not_configured", 
-                      "message": "API key configured" if Config.NOTION_API_KEY else "API key not configured"},
-            "airtable": {"status": "simulated" if Config.AIRTABLE_API_KEY else "not_configured",
-                        "message": "API key configured" if Config.AIRTABLE_API_KEY else "API key not configured"}
+            "notion": {"status": "simulated" if self.notion_service.api_key else "not_configured", 
+                      "message": "API key configured" if self.notion_service.api_key else "API key not configured"},
+            "airtable": {"status": "simulated" if self.airtable_service.api_key else "not_configured",
+                        "message": "API key configured" if self.airtable_service.api_key else "API key not configured"}
         }
         
         return results

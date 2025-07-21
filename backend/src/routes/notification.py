@@ -1,9 +1,9 @@
 from flask import Blueprint, request, jsonify
-from src.services.notification_service import notification_service
+from ..services.notification_service import notification_service
 
-notification_bp = Blueprint('notification', __name__)
+notification_bp = Blueprint('notification', __name__, url_prefix='/api/notifications')
 
-@notification_bp.route('/notifications', methods=['GET'])
+@notification_bp.route('/', methods=['GET'])
 def get_notifications():
     """Get notifications for a user"""
     try:
@@ -24,7 +24,7 @@ def get_notifications():
     except Exception as e:
         return jsonify({'error': f'Failed to get notifications: {str(e)}'}), 500
 
-@notification_bp.route('/notifications/<int:notification_id>/read', methods=['POST'])
+@notification_bp.route('/<int:notification_id>/read', methods=['POST'])
 def mark_as_read(notification_id):
     """Mark a notification as read"""
     try:
@@ -40,7 +40,7 @@ def mark_as_read(notification_id):
     except Exception as e:
         return jsonify({'error': f'Failed to mark notification as read: {str(e)}'}), 500
 
-@notification_bp.route('/notifications/read-all', methods=['POST'])
+@notification_bp.route('/read-all', methods=['POST'])
 def mark_all_as_read():
     """Mark all notifications as read for a user"""
     try:
@@ -56,7 +56,7 @@ def mark_all_as_read():
     except Exception as e:
         return jsonify({'error': f'Failed to mark notifications as read: {str(e)}'}), 500
 
-@notification_bp.route('/notifications/<int:notification_id>', methods=['DELETE'])
+@notification_bp.route('/<int:notification_id>', methods=['DELETE'])
 def delete_notification(notification_id):
     """Delete a notification"""
     try:
@@ -72,7 +72,7 @@ def delete_notification(notification_id):
     except Exception as e:
         return jsonify({'error': f'Failed to delete notification: {str(e)}'}), 500
 
-@notification_bp.route('/notifications/test', methods=['POST'])
+@notification_bp.route('/test', methods=['POST'])
 def test_notification():
     """Send a test notification"""
     try:

@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify
-from src.services.visualization_service import visualization_service
+from ..services.visualization_service import visualization_service
 
-visualization_bp = Blueprint('visualization', __name__)
+visualization_bp = Blueprint('visualization', __name__, url_prefix='/api/visualizations')
 
 @visualization_bp.route('/board', methods=['POST'])
 def create_board():

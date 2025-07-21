@@ -1,7 +1,6 @@
 import json
 from datetime import datetime
-from src.models.user import db
-from src.models.enhanced_models import Notification
+from ..models import db, Notification
 import socketio
 
 # Create Socket.IO server

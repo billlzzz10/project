@@ -13,7 +13,10 @@ class Config:
 class DevelopmentConfig(Config):
     """Development configuration."""
     DEBUG = True
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DEV_DATABASE_URL') or f"sqlite:///{os.path.join(os.path.abspath(os.path.dirname(__file__)), 'app_dev.db')}"
+    # Create instance folder if it doesn't exist
+    instance_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), '..', 'instance')
+    os.makedirs(instance_path, exist_ok=True)
+    SQLALCHEMY_DATABASE_URI = os.environ.get('DEV_DATABASE_URL') or f"sqlite:///{os.path.join(instance_path, 'app_dev.db')}"
     
     # AI API Keys
     GOOGLE_API_KEY = os.environ.get('GOOGLE_API_KEY')

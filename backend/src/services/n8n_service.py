@@ -1,12 +1,15 @@
 import requests
 import json
 from datetime import datetime
-from src.config import Config
+from flask import current_app
 
 class N8NService:
     def __init__(self):
-        self.webhook_url = Config.N8N_WEBHOOK_URL
         self.base_url = "http://localhost:5678"  # Default n8n URL
+
+    @property
+    def webhook_url(self):
+        return current_app.config.get('N8N_WEBHOOK_URL')
         
     def trigger_workflow(self, workflow_name, data=None):
         """Trigger n8n workflow via webhook"""

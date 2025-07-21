@@ -1,9 +1,9 @@
 from flask import Blueprint, request, jsonify
-from src.models.chat import PromptTemplate, GeneratedTool, db
-from src.services.ai_service import AIService
+from ..models import PromptTemplate, GeneratedTool, db
+from ..services.ai_service import AIService
 import json
 
-prompt_tool_bp = Blueprint('prompt_tool', __name__)
+prompt_tool_bp = Blueprint('prompt_tool', __name__, url_prefix='/api/prompt-tool')
 ai_service = AIService()
 
 # Prompt Template Routes

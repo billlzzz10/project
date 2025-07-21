@@ -4,8 +4,8 @@ import threading
 from datetime import datetime, timedelta
 import json
 import logging
-from src.services.external_integrations import IntegrationManager
-from src.services.n8n_service import N8NService
+from ..services.external_integrations import IntegrationManager
+from ..services.n8n_service import N8NService
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -118,7 +118,7 @@ class SchedulerService:
             logger.info("Starting Google Sheets sync job")
             
             # Get current stats
-            from src.models.chat import ChatSession, ChatMessage, PromptTemplate, GeneratedTool
+            from ..models import ChatSession, ChatMessage, PromptTemplate, GeneratedTool
             
             current_stats = {
                 "timestamp": datetime.utcnow().isoformat(),
@@ -169,8 +169,7 @@ class SchedulerService:
             logger.info("Starting monthly cleanup job")
             
             # Clean up old chat messages (older than 6 months)
-            from src.models.chat import ChatMessage
-            from src.models.user import db
+            from ..models import ChatMessage, db
             
             six_months_ago = datetime.utcnow() - timedelta(days=180)
             old_messages = ChatMessage.query.filter(ChatMessage.timestamp < six_months_ago).all()

@@ -3,9 +3,8 @@ import os
 import uuid
 from datetime import datetime
 import networkx as nx
-from src.models.user import db
-from src.models.enhanced_models import Board, GraphNode, GraphEdge, WorkItem
-from src.config import Config
+from ..models import db, Board, GraphNode, GraphEdge, WorkItem
+from ..config import Config
 
 class VisualizationService:
     def __init__(self):

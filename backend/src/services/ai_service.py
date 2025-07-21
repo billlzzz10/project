@@ -2,28 +2,41 @@ import google.generativeai as genai
 from transformers import AutoTokenizer, AutoModel
 import torch
 import os
-from src.config import Config
+from flask import current_app
 
 class AIService:
     def __init__(self):
-        # Initialize Google Gemini
-        if Config.GOOGLE_API_KEY:
-            genai.configure(api_key=Config.GOOGLE_API_KEY)
-            self.gemini_model = genai.GenerativeModel('gemini-2.5-flash')
-        else:
-            self.gemini_model = None
-            
-        # Initialize Hugging Face models
-        self.hf_tokenizer = None
-        self.hf_model = None
-        self._load_huggingface_model()
+        self._gemini_model = None
+        self._hf_tokenizer = None
+        self._hf_model = None
     
+    @property
+    def gemini_model(self):
+        if self._gemini_model is None:
+            api_key = current_app.config.get('GOOGLE_API_KEY')
+            if api_key:
+                genai.configure(api_key=api_key)
+                self._gemini_model = genai.GenerativeModel('gemini-2.5-flash')
+        return self._gemini_model
+
+    @property
+    def hf_tokenizer(self):
+        if self._hf_tokenizer is None:
+            self._load_huggingface_model()
+        return self._hf_tokenizer
+
+    @property
+    def hf_model(self):
+        if self._hf_model is None:
+            self._load_huggingface_model()
+        return self._hf_model
+
     def _load_huggingface_model(self):
         """Load Hugging Face model for embeddings"""
         try:
             model_name = "sentence-transformers/all-MiniLM-L6-v2"
-            self.hf_tokenizer = AutoTokenizer.from_pretrained(model_name)
-            self.hf_model = AutoModel.from_pretrained(model_name)
+            self._hf_tokenizer = AutoTokenizer.from_pretrained(model_name)
+            self._hf_model = AutoModel.from_pretrained(model_name)
         except Exception as e:
             print(f"Error loading Hugging Face model: {e}")
     

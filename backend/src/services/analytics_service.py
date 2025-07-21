@@ -1,14 +1,12 @@
+from flask import Blueprint, jsonify
+from ..models import db, ChatSession, ChatMessage, User, UploadedFile, WorkItem, RAGDocument, UserProfile, Board, GraphNode, GraphEdge
+from sqlalchemy import func, desc
 import json
 from datetime import datetime, timedelta
 import pandas as pd
 import numpy as np
-from sqlalchemy import func, desc, and_, text
-from src.models.user import db
-from src.models.chat import ChatSession, ChatMessage
-from src.models.enhanced_models import (
-    UploadedFile, RAGDocument, UserProfile, 
-    WorkItem, Board, GraphNode, GraphEdge
-)
+
+analytics_bp = Blueprint('analytics', __name__, url_prefix='/api/analytics')
 
 class AnalyticsService:
     def __init__(self):
