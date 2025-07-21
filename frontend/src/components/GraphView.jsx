@@ -306,7 +306,25 @@ function GraphView() {
               // Node background
               ctx.fillStyle = node.type === 'work_item' ? '#1976d2' : '#4caf50';
               ctx.beginPath();
-              ctx.roundRect(node.x - bckgDimensions[0] / 2, node.y - bckgDimensions[1] / 2, bckgDimensions[0], bckgDimensions[1], [5]);
+              if (typeof ctx.roundRect === 'function') {
+                ctx.roundRect(node.x - bckgDimensions[0] / 2, node.y - bckgDimensions[1] / 2, bckgDimensions[0], bckgDimensions[1], 5);
+              } else {
+                // Fallback for browsers without roundRect
+                const x = node.x - bckgDimensions[0] / 2;
+                const y = node.y - bckgDimensions[1] / 2;
+                const w = bckgDimensions[0];
+                const h = bckgDimensions[1];
+                const r = 5;
+                ctx.moveTo(x + r, y);
+                ctx.lineTo(x + w - r, y);
+                ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+                ctx.lineTo(x + w, y + h - r);
+                ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+                ctx.lineTo(x + r, y + h);
+                ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+                ctx.lineTo(x, y + r);
+                ctx.quadraticCurveTo(x, y, x + r, y);
+              }
               ctx.fill();
               
               // Node text
@@ -322,13 +340,31 @@ function GraphView() {
               if (node.__bckgDimensions) {
                 ctx.fillStyle = color;
                 ctx.beginPath();
-                ctx.roundRect(
-                  node.x - node.__bckgDimensions[0] / 2,
-                  node.y - node.__bckgDimensions[1] / 2,
-                  node.__bckgDimensions[0],
-                  node.__bckgDimensions[1],
-                  [5]
-                );
+                if (typeof ctx.roundRect === 'function') {
+                  ctx.roundRect(
+                    node.x - node.__bckgDimensions[0] / 2,
+                    node.y - node.__bckgDimensions[1] / 2,
+                    node.__bckgDimensions[0],
+                    node.__bckgDimensions[1],
+                    5
+                  );
+                } else {
+                  // Fallback for browsers without roundRect
+                  const x = node.x - node.__bckgDimensions[0] / 2;
+                  const y = node.y - node.__bckgDimensions[1] / 2;
+                  const w = node.__bckgDimensions[0];
+                  const h = node.__bckgDimensions[1];
+                  const r = 5;
+                  ctx.moveTo(x + r, y);
+                  ctx.lineTo(x + w - r, y);
+                  ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+                  ctx.lineTo(x + w, y + h - r);
+                  ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+                  ctx.lineTo(x + r, y + h);
+                  ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+                  ctx.lineTo(x, y + r);
+                  ctx.quadraticCurveTo(x, y, x + r, y);
+                }
                 ctx.fill();
               }
             }}

@@ -1,18 +1,18 @@
 import React, { useState } from 'react';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
-import EnhancedLayout from './components/EnhancedLayout';
-import EnhancedDashboard from './components/EnhancedDashboard';
-import EnhancedFileUpload from './components/EnhancedFileUpload';
-import EnhancedChat from './components/EnhancedChat';
-import PromptGenerator from './components/PromptGenerator';
-import ToolGenerator from './components/ToolGenerator';
-import Profile from './components/Profile';
-import WorkStorage from './components/WorkStorage';
-import ContentSharing from './components/ContentSharing';
-import MindMap from './components/MindMap';
-import GraphView from './components/GraphView';
-import Board from './components/Board';
+import EnhancedLayout from './EnhancedLayout';
+import EnhancedDashboard from './EnhancedDashboard';
+import EnhancedFileUpload from './EnhancedFileUpload';
+import EnhancedChat from './EnhancedChat';
+import PromptGenerator from './PromptGenerator';
+import ToolGenerator from './ToolGenerator';
+import Profile from './Profile';
+import WorkStorage from './WorkStorage';
+import ContentSharing from './ContentSharing';
+import MindMap from './MindMap';
+import GraphView from './GraphView';
+import Board from './Board';
 import { Box, Typography } from '@mui/material';
 
 // Create theme
