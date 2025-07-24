@@ -1,4 +1,70 @@
 ---
+# AI Business App Coding Instructions
+
+This document provides essential guidance for AI agents working on the AI Business App codebase.
+
+## Architecture Overview
+
+The project is a monorepo containing three main parts: a Flask backend, a React frontend, and a separate RAG model service.
+
+1.  **`backend/`**: A Flask application that serves as the central API. It follows the **Application Factory Pattern**.
+    -   **Entry Point**: `run.py`
+    -   **App Creation**: `src/main.py` contains the `create_app` factory. This is where all services are initialized and attached to the Flask `app` object.
+    -   **Services (`src/services/`)**: Contains the business logic. Key services include:
+        -   `enhanced_rag_service.py`: Manages the Retrieval-Augmented Generation workflow, orchestrating calls to the embedding model and the vector database.
+        -   `ai_service.py`: Handles interactions with generative AI models (e.g., Google Gemini).
+        -   `notion_service.py` & `airtable_service.py`: Contain logic for interacting with external SaaS APIs directly.
+    -   **Routes (`src/routes/`)**: Defines the API endpoints. Each file corresponds to a feature area and uses a Flask Blueprint.
+    -   **Models (`src/models.py`)**: Contains all SQLAlchemy database models.
+
+2.  **`frontend/`**: A React application for the user interface.
+    -   **Components (`src/components/`)**: All React components are located here. `App.jsx` is the main component that handles routing.
+    -   **API Communication**: Components make API calls to the Flask backend. The base URL is configured via `VITE_API_BASE` in the `.env` file and defaults to `http://localhost:5001/api`.
+
+3.  **`rag_model_service/`**: A self-contained Gradio application responsible for generating text embeddings. It is intended to be run as a separate microservice. The main backend communicates with this service for embedding tasks.
+
+## Development Workflow
+
+### Running the Application
+
+To run the full application, you need to start both the backend and frontend servers.
+
+1.  **Backend Setup**:
+    ```bash
+    # Navigate to the backend directory
+    cd backend
+
+    # Activate the virtual environment
+    # On Windows
+    .\\venv\\Scripts\\activate
+    # On macOS/Linux
+    # source venv/bin/activate
+
+    # Run the server
+    python run.py
+    ```
+    The backend runs on `http://localhost:5001`.
+
+2.  **Frontend Setup**:
+    ```bash
+    # Navigate to the frontend directory
+    cd frontend
+
+    # Install dependencies (if not already done)
+    npm install
+
+    # Start the development server
+    npm start
+    ```
+    The frontend runs on `http://localhost:3000` and proxies API requests to the backend.
+
+### Key Patterns & Conventions
+
+-   **Service Initialization**: All services are initialized within the `create_app` function in `backend/src/main.py` and attached to the `current_app` context. When accessing a service from a route, use `from flask import current_app` and then `current_app.my_service`. **Do not** instantiate services directly in route files.
+-   **Environment Variables**: All secrets and configuration variables are managed through a `.env` file in the `backend/` directory. Refer to `.env.template` for the required variables.
+-   **RAG Workflow**: The RAG process is decoupled. The `enhanced_rag_service.py` acts as an orchestrator. It calls the `rag_model_service/` (or a Hugging Face Inference API) to get embeddings and then uses a vector database service (like Pinecone) for storage and retrieval. It does **not** run the embedding model in its own process.
+
+---
 # Codacy Rules
 Configuration for AI behavior when interacting with Codacy's MCP Server
 

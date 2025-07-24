@@ -1,29 +1,31 @@
-import React, { useState, useEffect } from 'react';
-import {
-  Box, Paper, Typography, Grid, Card, CardContent, CardHeader, Button,
-  TextField, TextareaAutosize, Badge, Tabs, Tab, CircularProgress,
-  IconButton, Select, MenuItem, FormControl, InputLabel, Chip
-} from '@mui/material';
+import { useState, useEffect } from 'react'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
+import { Badge } from '@/components/ui/badge'
+import { ScrollArea } from '@/components/ui/scroll-area'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { 
-  Add as Plus, 
-  AutoAwesome as Wand2, 
-  ContentCopy as Copy, 
+  Plus, 
+  Wand2, 
+  Copy, 
   Edit, 
-  Delete as Trash2, 
+  Trash2, 
   Save, 
-  Description as FileText, 
+  FileText, 
   Star,
   Search,
   Filter
-} from '@mui/icons-material';
+} from 'lucide-react'
 
-const API_BASE = process.env.REACT_APP_API_BASE || 'http://localhost:5001/api';
+const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:5000/api'
 
 export default function PromptGenerator() {
-  const [prompts, setPrompts] = useState([]);
-  const [selectedPrompt, setSelectedPrompt] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState('browse');
+  const [prompts, setPrompts] = useState([])
+  const [selectedPrompt, setSelectedPrompt] = useState(null)
+  const [isLoading, setIsLoading] = useState(false)
+  const [activeTab, setActiveTab] = useState('browse')
   
   // Form states
   const [promptForm, setPromptForm] = useState({
@@ -33,36 +35,36 @@ export default function PromptGenerator() {
     category: 'general',
     tags: [],
     is_public: false
-  });
+  })
   
   // Generator states
   const [generatorForm, setGeneratorForm] = useState({
     task_description: '',
     examples: []
-  });
+  })
   
-  const [generatedPrompt, setGeneratedPrompt] = useState('');
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [generatedPrompt, setGeneratedPrompt] = useState('')
+  const [searchTerm, setSearchTerm] = useState('')
+  const [selectedCategory, setSelectedCategory] = useState('all')
 
   useEffect(() => {
-    loadPrompts();
-  }, []);
+    loadPrompts()
+  }, [])
 
   const loadPrompts = async () => {
     try {
-      const response = await fetch(`${API_BASE}/prompts?user_id=1`);
-      const data = await response.json();
-      setPrompts(data);
+      const response = await fetch(`${API_BASE}/prompts?user_id=1`)
+      const data = await response.json()
+      setPrompts(data)
     } catch (error) {
-      console.error('Error loading prompts:', error);
+      console.error('Error loading prompts:', error)
     }
-  };
+  }
 
   const generatePrompt = async () => {
     if (!generatorForm.task_description.trim()) return
     
-    setIsLoading(true);
+    setIsLoading(true)
     try {
       const response = await fetch(`${API_BASE}/prompts/generate`, {
         method: 'POST',
@@ -70,23 +72,23 @@ export default function PromptGenerator() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(generatorForm)
-      });
+      })
       
-      const data = await response.json();
+      const data = await response.json()
       if (data.generated_prompt) {
-        setGeneratedPrompt(data.generated_prompt);
+        setGeneratedPrompt(data.generated_prompt)
         setPromptForm(prev => ({
           ...prev,
           template: data.generated_prompt,
           name: `Generated: ${generatorForm.task_description.substring(0, 30)}...`
-        }));
+        }))
       }
     } catch (error) {
-      console.error('Error generating prompt:', error);
+      console.error('Error generating prompt:', error)
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
-  };
+  }
 
   const savePrompt = async () => {
     if (!promptForm.name.trim() || !promptForm.template.trim()) return
@@ -101,11 +103,11 @@ export default function PromptGenerator() {
           ...promptForm,
           user_id: 1
         })
-      });
+      })
       
       if (response.ok) {
-        const newPrompt = await response.json();
-        setPrompts([newPrompt, ...prompts]);
+        const newPrompt = await response.json()
+        setPrompts([newPrompt, ...prompts])
         setPromptForm({
           name: '',
           description: '',
@@ -113,212 +115,357 @@ export default function PromptGenerator() {
           category: 'general',
           tags: [],
           is_public: false
-        });
-        setActiveTab('browse');
+        })
+        setActiveTab('browse')
       }
     } catch (error) {
-      console.error('Error saving prompt:', error);
+      console.error('Error saving prompt:', error)
     }
-  };
+  }
 
   const deletePrompt = async (promptId) => {
     try {
       const response = await fetch(`${API_BASE}/prompts/${promptId}?user_id=1`, {
         method: 'DELETE'
-      });
+      })
       
       if (response.ok) {
-        setPrompts(prompts.filter(p => p.id !== promptId));
+        setPrompts(prompts.filter(p => p.id !== promptId))
         if (selectedPrompt?.id === promptId) {
-          setSelectedPrompt(null);
+          setSelectedPrompt(null)
         }
       }
     } catch (error) {
-      console.error('Error deleting prompt:', error);
+      console.error('Error deleting prompt:', error)
     }
-  };
+  }
 
   const copyToClipboard = (text) => {
-    navigator.clipboard.writeText(text);
-  };
+    navigator.clipboard.writeText(text)
+  }
 
   const filteredPrompts = prompts.filter(prompt => {
     const matchesSearch = prompt.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          prompt.description.toLowerCase().includes(searchTerm.toLowerCase())
-    const matchesCategory = selectedCategory === 'all' || prompt.category === selectedCategory;
-    return matchesSearch && matchesCategory;
-  });
+    const matchesCategory = selectedCategory === 'all' || prompt.category === selectedCategory
+    return matchesSearch && matchesCategory
+  })
 
-  const categories = [...new Set(prompts.map(p => p.category))];
+  const categories = [...new Set(prompts.map(p => p.category))]
 
   return (
-    <Box p={3}>
-      <Box display="flex" alignItems="center" justifyContent="space-between" mb={3}>
-        <Box>
-          <Typography variant="h4" fontWeight="bold">Prompt Generator</Typography>
-          <Typography color="text.secondary">สร้างและจัดการ Prompt Templates</Typography>
-        </Box>
-      </Box>
+    <div className="p-6 space-y-6 bg-gray-50 min-h-screen">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Prompt Generator</h1>
+          <p className="text-gray-600">สร้างและจัดการ Prompt Templates</p>
+        </div>
+      </div>
 
-      <Tabs value={activeTab} onChange={(e, newValue) => setActiveTab(newValue)} sx={{ mb: 3 }}>
-        <Tab label="เรียกดู Prompts" value="browse" />
-        <Tab label="สร้าง Prompt" value="generate" />
-        <Tab label="สร้างด้วยตนเอง" value="create" />
-      </Tabs>
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger value="browse">เรียกดู Prompts</TabsTrigger>
+          <TabsTrigger value="generate">สร้าง Prompt</TabsTrigger>
+          <TabsTrigger value="create">สร้างด้วยตนเอง</TabsTrigger>
+        </TabsList>
 
-      {activeTab === 'browse' && (
-        <Grid container spacing={3}>
-          <Grid item xs={12}>
-            <Paper sx={{ p: 2, display: 'flex', gap: 2 }}>
-              <TextField
-                fullWidth
-                variant="outlined"
+        <TabsContent value="browse" className="space-y-4">
+          {/* Search and Filter */}
+          <div className="flex space-x-4">
+            <div className="flex-1">
+              <Input
                 placeholder="ค้นหา Prompts..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                InputProps={{
-                  startAdornment: <Search />,
-                }}
+                className="w-full"
               />
-              <FormControl sx={{ minWidth: 150 }}>
-                <InputLabel>หมวดหมู่</InputLabel>
-                <Select value={selectedCategory} label="หมวดหมู่" onChange={(e) => setSelectedCategory(e.target.value)}>
-                  <MenuItem value="all">ทุกหมวดหมู่</MenuItem>
-                  {categories.map(cat => (
-                    <MenuItem key={cat} value={cat}>{cat}</MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </Paper>
-          </Grid>
-          <Grid item xs={12} md={6}>
-            <Typography variant="h6" gutterBottom>Prompt Templates ({filteredPrompts.length})</Typography>
-            <Paper sx={{ height: '70vh', overflow: 'auto' }}>
-              <Box p={2}>
-                {filteredPrompts.map((prompt) => (
-                  <Card
-                    key={prompt.id}
-                    sx={{ mb: 2, cursor: 'pointer', border: selectedPrompt?.id === prompt.id ? '2px solid' : '1px solid', borderColor: selectedPrompt?.id === prompt.id ? 'primary.main' : 'divider' }}
-                    onClick={() => setSelectedPrompt(prompt)}
-                  >
-                    <CardContent>
-                      <Box display="flex" justifyContent="space-between">
-                        <Box>
-                          <Typography variant="h6" component="div">{prompt.name}</Typography>
-                          <Typography color="text.secondary" sx={{ mb: 1 }}>{prompt.description}</Typography>
-                          <Chip label={prompt.category} size="small" sx={{ mr: 1 }} />
-                          {prompt.is_public && <Chip label="Public" size="small" color="success" />}
-                        </Box>
-                        <Box>
-                          <IconButton size="small" onClick={(e) => { e.stopPropagation(); copyToClipboard(prompt.template); }}><Copy /></IconButton>
-                          <IconButton size="small" onClick={(e) => { e.stopPropagation(); deletePrompt(prompt.id); }}><Trash2 /></IconButton>
-                        </Box>
-                      </Box>
-                    </CardContent>
-                  </Card>
-                ))}
-              </Box>
-            </Paper>
-          </Grid>
-          <Grid item xs={12} md={6}>
-            {selectedPrompt ? (
-              <Card sx={{ height: 'calc(70vh + 48px)' }}>
-                <CardHeader title={selectedPrompt.name} subheader={selectedPrompt.description} />
-                <CardContent>
-                  <Typography variant="subtitle2" gutterBottom>Template</Typography>
-                  <TextareaAutosize
-                    value={selectedPrompt.template}
-                    readOnly
-                    style={{ width: '100%', minHeight: '40vh', fontFamily: 'monospace', fontSize: '0.875rem', border: '1px solid #ccc', padding: '8px' }}
-                  />
-                </CardContent>
-              </Card>
-            ) : (
-              <Paper sx={{ height: 'calc(70vh + 48px)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column' }}>
-                <FileText sx={{ fontSize: 60, color: 'text.disabled' }} />
-                <Typography color="text.secondary">เลือก Prompt เพื่อดูรายละเอียด</Typography>
-              </Paper>
-            )}
-          </Grid>
-        </Grid>
-      )}
-
-      {activeTab === 'generate' && (
-        <Card>
-          <CardHeader title={<Box display="flex" alignItems="center" gap={1}><Wand2 /> สร้าง Prompt อัตโนมัติ</Box>} />
-          <CardContent sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-            <TextField
-              fullWidth
-              label="อธิบายงานที่ต้องการ"
-              placeholder="เช่น: สร้าง prompt สำหรับเขียนบทความเกี่ยวกับเทคโนโลยี AI"
-              value={generatorForm.task_description}
-              onChange={(e) => setGeneratorForm(prev => ({ ...prev, task_description: e.target.value }))}
-              multiline
-              rows={4}
-            />
-            <Button onClick={generatePrompt} variant="contained" disabled={isLoading || !generatorForm.task_description.trim()}>
-              {isLoading ? <CircularProgress size={24} /> : 'สร้าง Prompt'}
-            </Button>
-            {generatedPrompt && (
-              <Box>
-                <Typography variant="subtitle2" gutterBottom>Prompt ที่สร้างขึ้น</Typography>
-                <TextareaAutosize
-                  value={generatedPrompt}
-                  onChange={(e) => setGeneratedPrompt(e.target.value)}
-                  style={{ width: '100%', minHeight: '30vh', fontFamily: 'monospace', fontSize: '0.875rem', border: '1px solid #ccc', padding: '8px' }}
-                />
-                <Box mt={2} display="flex" gap={1}>
-                  <Button variant="outlined" onClick={() => copyToClipboard(generatedPrompt)}><Copy /> คัดลอก</Button>
-                  <Button variant="contained" onClick={() => { setPromptForm(prev => ({ ...prev, template: generatedPrompt })); setActiveTab('create'); }}><Save /> บันทึกเป็น Template</Button>
-                </Box>
-              </Box>
-            )}
-          </CardContent>
-        </Card>
-      )}
-
-      {activeTab === 'create' && (
-        <Card>
-          <CardHeader title={<Box display="flex" alignItems="center" gap={1}><Plus /> สร้าง Prompt Template ใหม่</Box>} />
-          <CardContent sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-            <TextField fullWidth label="ชื่อ Template" value={promptForm.name} onChange={(e) => setPromptForm(prev => ({ ...prev, name: e.target.value }))} />
-            <FormControl fullWidth>
-              <InputLabel>หมวดหมู่</InputLabel>
-              <Select value={promptForm.category} label="หมวดหมู่" onChange={(e) => setPromptForm(prev => ({ ...prev, category: e.target.value }))}>
-                <MenuItem value="general">ทั่วไป</MenuItem>
-                <MenuItem value="writing">การเขียน</MenuItem>
-                <MenuItem value="analysis">การวิเคราะห์</MenuItem>
-                <MenuItem value="creative">สร้างสรรค์</MenuItem>
-                <MenuItem value="business">ธุรกิจ</MenuItem>
-                <MenuItem value="technical">เทคนิค</MenuItem>
-              </Select>
-            </FormControl>
-            <TextField fullWidth label="คำอธิบาย" value={promptForm.description} onChange={(e) => setPromptForm(prev => ({ ...prev, description: e.target.value }))} multiline rows={3} />
-            <TextareaAutosize
-              placeholder="เขียน Prompt Template ของคุณที่นี่..."
-              value={promptForm.template}
-              onChange={(e) => setPromptForm(prev => ({ ...prev, template: e.target.value }))}
-              style={{ width: '100%', minHeight: '30vh', fontFamily: 'monospace', fontSize: '0.875rem', border: '1px solid #ccc', padding: '8px' }}
-            />
-            <div className="flex items-center space-x-2">
-              <input
-                type="checkbox"
-                id="is_public"
-                checked={promptForm.is_public}
-                onChange={(e) => setPromptForm(prev => ({
-                  ...prev,
-                  is_public: e.target.checked
-                }))}
-              />
-              <label htmlFor="is_public" className="text-sm text-gray-700">
-                แชร์เป็น Public Template
-              </label>
             </div>
-            <Button onClick={savePrompt} variant="contained" disabled={!promptForm.name.trim() || !promptForm.template.trim()}><Save /> บันทึก Template</Button>
-          </CardContent>
-        </Card>
-      )}
-    </Box>
-  );
+            <select
+              value={selectedCategory}
+              onChange={(e) => setSelectedCategory(e.target.value)}
+              className="px-3 py-2 border border-gray-300 rounded-md"
+            >
+              <option value="all">ทุกหมวดหมู่</option>
+              {categories.map(cat => (
+                <option key={cat} value={cat}>{cat}</option>
+              ))}
+            </select>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Prompts List */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold">Prompt Templates ({filteredPrompts.length})</h3>
+              <ScrollArea className="h-[600px]">
+                <div className="space-y-3">
+                  {filteredPrompts.map((prompt) => (
+                    <Card
+                      key={prompt.id}
+                      className={`cursor-pointer transition-colors ${
+                        selectedPrompt?.id === prompt.id ? 'bg-blue-50 border-blue-200' : 'hover:bg-gray-50'
+                      }`}
+                      onClick={() => setSelectedPrompt(prompt)}
+                    >
+                      <CardContent className="p-4">
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <h4 className="font-medium text-gray-900">{prompt.name}</h4>
+                            <p className="text-sm text-gray-600 mt-1">{prompt.description}</p>
+                            <div className="flex items-center space-x-2 mt-2">
+                              <Badge variant="outline">{prompt.category}</Badge>
+                              {prompt.is_public && <Badge variant="default">Public</Badge>}
+                              <span className="text-xs text-gray-500">ใช้งาน {prompt.usage_count} ครั้ง</span>
+                            </div>
+                          </div>
+                          <div className="flex space-x-1">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                copyToClipboard(prompt.template)
+                              }}
+                            >
+                              <Copy className="w-4 h-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                deletePrompt(prompt.id)
+                              }}
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </ScrollArea>
+            </div>
+
+            {/* Prompt Detail */}
+            <div>
+              {selectedPrompt ? (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center justify-between">
+                      {selectedPrompt.name}
+                      <div className="flex space-x-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => copyToClipboard(selectedPrompt.template)}
+                        >
+                          <Copy className="w-4 h-4 mr-2" />
+                          คัดลอก
+                        </Button>
+                      </div>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div>
+                      <label className="text-sm font-medium text-gray-700">คำอธิบาย</label>
+                      <p className="text-sm text-gray-600 mt-1">{selectedPrompt.description}</p>
+                    </div>
+                    
+                    <div>
+                      <label className="text-sm font-medium text-gray-700">Template</label>
+                      <Textarea
+                        value={selectedPrompt.template}
+                        readOnly
+                        className="mt-1 h-40"
+                      />
+                    </div>
+                    
+                    <div className="flex items-center space-x-4">
+                      <Badge variant="outline">{selectedPrompt.category}</Badge>
+                      {selectedPrompt.is_public && <Badge variant="default">Public</Badge>}
+                      <span className="text-sm text-gray-500">
+                        สร้างเมื่อ {new Date(selectedPrompt.created_at).toLocaleDateString('th-TH')}
+                      </span>
+                    </div>
+                  </CardContent>
+                </Card>
+              ) : (
+                <Card>
+                  <CardContent className="flex items-center justify-center h-64">
+                    <div className="text-center">
+                      <FileText className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                      <p className="text-gray-500">เลือก Prompt เพื่อดูรายละเอียด</p>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="generate" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <Wand2 className="w-5 h-5 mr-2" />
+                สร้าง Prompt อัตโนมัติ
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div>
+                <label className="text-sm font-medium text-gray-700">อธิบายงานที่ต้องการ</label>
+                <Textarea
+                  placeholder="เช่น: สร้าง prompt สำหรับเขียนบทความเกี่ยวกับเทคโนโลยี AI"
+                  value={generatorForm.task_description}
+                  onChange={(e) => setGeneratorForm(prev => ({
+                    ...prev,
+                    task_description: e.target.value
+                  }))}
+                  className="mt-1"
+                />
+              </div>
+              
+              <Button 
+                onClick={generatePrompt} 
+                disabled={isLoading || !generatorForm.task_description.trim()}
+                className="w-full"
+              >
+                {isLoading ? 'กำลังสร้าง...' : 'สร้าง Prompt'}
+              </Button>
+              
+              {generatedPrompt && (
+                <div>
+                  <label className="text-sm font-medium text-gray-700">Prompt ที่สร้างขึ้น</label>
+                  <Textarea
+                    value={generatedPrompt}
+                    onChange={(e) => setGeneratedPrompt(e.target.value)}
+                    className="mt-1 h-40"
+                  />
+                  <div className="flex space-x-2 mt-2">
+                    <Button
+                      variant="outline"
+                      onClick={() => copyToClipboard(generatedPrompt)}
+                    >
+                      <Copy className="w-4 h-4 mr-2" />
+                      คัดลอก
+                    </Button>
+                    <Button
+                      onClick={() => {
+                        setPromptForm(prev => ({
+                          ...prev,
+                          template: generatedPrompt
+                        }))
+                        setActiveTab('create')
+                      }}
+                    >
+                      <Save className="w-4 h-4 mr-2" />
+                      บันทึกเป็น Template
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="create" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <Plus className="w-5 h-5 mr-2" />
+                สร้าง Prompt Template ใหม่
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium text-gray-700">ชื่อ Template</label>
+                  <Input
+                    placeholder="ชื่อ Prompt Template"
+                    value={promptForm.name}
+                    onChange={(e) => setPromptForm(prev => ({
+                      ...prev,
+                      name: e.target.value
+                    }))}
+                    className="mt-1"
+                  />
+                </div>
+                
+                <div>
+                  <label className="text-sm font-medium text-gray-700">หมวดหมู่</label>
+                  <select
+                    value={promptForm.category}
+                    onChange={(e) => setPromptForm(prev => ({
+                      ...prev,
+                      category: e.target.value
+                    }))}
+                    className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md"
+                  >
+                    <option value="general">ทั่วไป</option>
+                    <option value="writing">การเขียน</option>
+                    <option value="analysis">การวิเคราะห์</option>
+                    <option value="creative">สร้างสรรค์</option>
+                    <option value="business">ธุรกิจ</option>
+                    <option value="technical">เทคนิค</option>
+                  </select>
+                </div>
+              </div>
+              
+              <div>
+                <label className="text-sm font-medium text-gray-700">คำอธิบาย</label>
+                <Textarea
+                  placeholder="อธิบายการใช้งาน Prompt นี้"
+                  value={promptForm.description}
+                  onChange={(e) => setPromptForm(prev => ({
+                    ...prev,
+                    description: e.target.value
+                  }))}
+                  className="mt-1"
+                />
+              </div>
+              
+              <div>
+                <label className="text-sm font-medium text-gray-700">Template</label>
+                <Textarea
+                  placeholder="เขียน Prompt Template ของคุณที่นี่..."
+                  value={promptForm.template}
+                  onChange={(e) => setPromptForm(prev => ({
+                    ...prev,
+                    template: e.target.value
+                  }))}
+                  className="mt-1 h-40"
+                />
+              </div>
+              
+              <div className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  id="is_public"
+                  checked={promptForm.is_public}
+                  onChange={(e) => setPromptForm(prev => ({
+                    ...prev,
+                    is_public: e.target.checked
+                  }))}
+                />
+                <label htmlFor="is_public" className="text-sm text-gray-700">
+                  แชร์เป็น Public Template
+                </label>
+              </div>
+              
+              <Button 
+                onClick={savePrompt}
+                disabled={!promptForm.name.trim() || !promptForm.template.trim()}
+                className="w-full"
+              >
+                <Save className="w-4 h-4 mr-2" />
+                บันทึก Template
+              </Button>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
+    </div>
+  )
 }
 

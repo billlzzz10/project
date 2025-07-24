@@ -1,23 +1,30 @@
-import React, { useState, useEffect } from 'react';
-import {
-  Box, Paper, Typography, Grid, Card, CardContent, CardHeader, Button,
-  TextField, TextareaAutosize, Badge, Tabs, Tab, CircularProgress,
-  IconButton, Select, MenuItem, FormControl, InputLabel, Chip
-} from '@mui/material';
-import AddIcon from '@mui/icons-material/Add';
-import BoltIcon from '@mui/icons-material/Bolt';
-import ContentCopyIcon from '@mui/icons-material/ContentCopy';
-import EditIcon from '@mui/icons-material/Edit';
-import DeleteIcon from '@mui/icons-material/Delete';
-import SaveIcon from '@mui/icons-material/Save';
-import CodeIcon from '@mui/icons-material/Code';
-import PlayArrowIcon from '@mui/icons-material/PlayArrow';
-import SearchIcon from '@mui/icons-material/Search';
-import DownloadIcon from '@mui/icons-material/Download';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import CancelIcon from '@mui/icons-material/Cancel';
+import { useState, useEffect } from 'react'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
+import { Badge } from '@/components/ui/badge'
+import { ScrollArea } from '@/components/ui/scroll-area'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { 
+  Plus, 
+  Zap, 
+  Copy, 
+  Edit, 
+  Trash2, 
+  Save, 
+  Code, 
+  Play,
+  Search,
+  Download,
+  CheckCircle,
+  XCircle
+} from 'lucide-react'
 
-const API_BASE = process.env.REACT_APP_API_BASE || 'http://localhost:5001/api';
+// API_BASE is configurable via VITE_API_BASE environment variable.
+// Default is http://localhost:5001/api (previously port 5000).
+// If your backend runs on a different port, set VITE_API_BASE accordingly in your .env file.
+const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:5001/api'
 
 export default function ToolGenerator() {
   const [tools, setTools] = useState([])
@@ -47,8 +54,8 @@ export default function ToolGenerator() {
   const [selectedCategory, setSelectedCategory] = useState('all')
 
   useEffect(() => {
-    loadTools();
-  }, []);
+    loadTools()
+  }, [])
 
   const loadTools = async () => {
     try {
@@ -58,7 +65,7 @@ export default function ToolGenerator() {
     } catch (error) {
       console.error('Error loading tools:', error)
     }
-  };
+  }
 
   const generateTool = async () => {
     if (!generatorForm.tool_description.trim()) return
@@ -89,7 +96,7 @@ export default function ToolGenerator() {
     } finally {
       setIsLoading(false)
     }
-  };
+  }
 
   const saveTool = async () => {
     if (!toolForm.name.trim() || !toolForm.code.trim()) return
@@ -122,7 +129,7 @@ export default function ToolGenerator() {
     } catch (error) {
       console.error('Error saving tool:', error)
     }
-  };
+  }
 
   const deleteTool = async (toolId) => {
     try {
@@ -139,11 +146,11 @@ export default function ToolGenerator() {
     } catch (error) {
       console.error('Error deleting tool:', error)
     }
-  };
+  }
 
   const copyToClipboard = (text) => {
-    navigator.clipboard.writeText(text);
-  };
+    navigator.clipboard.writeText(text)
+  }
 
   const downloadCode = (code, filename) => {
     const element = document.createElement('a')
@@ -153,7 +160,7 @@ export default function ToolGenerator() {
     document.body.appendChild(element)
     element.click()
     document.body.removeChild(element)
-  };
+  }
 
   const filteredTools = tools.filter(tool => {
     const matchesSearch = tool.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -161,10 +168,10 @@ export default function ToolGenerator() {
     const matchesLanguage = selectedLanguage === 'all' || tool.language === selectedLanguage
     const matchesCategory = selectedCategory === 'all' || tool.category === selectedCategory
     return matchesSearch && matchesLanguage && matchesCategory
-  });
+  })
 
-  const languages = [...new Set(tools.map(t => t.language))];
-  const categories = [...new Set(tools.map(t => t.category))];
+  const languages = [...new Set(tools.map(t => t.language))]
+  const categories = [...new Set(tools.map(t => t.category))]
 
   const getLanguageIcon = (language) => {
     switch (language) {
@@ -173,188 +180,435 @@ export default function ToolGenerator() {
       case 'java': return '☕'
       case 'cpp': return '⚡'
       case 'go': return '🐹'
-      default: return <CodeIcon />;
+      default: return '💻'
     }
-  };
+  }
 
   return (
-    <Box p={3}>
-      <Box display="flex" alignItems="center" justifyContent="space-between" mb={3}>
-        <Box>
-          <Typography variant="h4" fontWeight="bold">Tool Generator</Typography>
-          <Typography color="text.secondary">สร้างและจัดการ Code Tools อัตโนมัติ</Typography>
-        </Box>
-      </Box>
+    <div className="p-6 space-y-6 bg-gray-50 min-h-screen">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Tool Generator</h1>
+          <p className="text-gray-600">สร้างและจัดการ Code Tools อัตโนมัติ</p>
+        </div>
+      </div>
 
-      <Tabs value={activeTab} onChange={(e, newValue) => setActiveTab(newValue)} sx={{ mb: 3 }}>
-        <Tab label="เรียกดู Tools" value="browse" />
-        <Tab label="สร้าง Tool" value="generate" />
-        <Tab label="สร้างด้วยตนเอง" value="create" />
-      </Tabs>
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger value="browse">เรียกดู Tools</TabsTrigger>
+          <TabsTrigger value="generate">สร้าง Tool</TabsTrigger>
+          <TabsTrigger value="create">สร้างด้วยตนเอง</TabsTrigger>
+        </TabsList>
 
-      {activeTab === 'browse' && (
-        <Grid container spacing={3}>
-          <Grid item xs={12}>
-            <Paper sx={{ p: 2, display: 'flex', gap: 2 }}>
-              <TextField
-                fullWidth
-                variant="outlined"
+        <TabsContent value="browse" className="space-y-4">
+          {/* Search and Filter */}
+          <div className="flex space-x-4">
+            <div className="flex-1">
+              <Input
                 placeholder="ค้นหา Tools..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                InputProps={{
-                  startAdornment: <SearchIcon />,
-                }}
+                className="w-full"
               />
-              <FormControl sx={{ minWidth: 150 }}>
-                <InputLabel>ภาษา</InputLabel>
-                <Select value={selectedLanguage} label="ภาษา" onChange={(e) => setSelectedLanguage(e.target.value)}>
-                  <MenuItem value="all">ทุกภาษา</MenuItem>
-                  {languages.map(lang => (
-                    <MenuItem key={lang} value={lang}>{lang}</MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-              <FormControl sx={{ minWidth: 150 }}>
-                <InputLabel>หมวดหมู่</InputLabel>
-                <Select value={selectedCategory} label="หมวดหมู่" onChange={(e) => setSelectedCategory(e.target.value)}>
-                  <MenuItem value="all">ทุกหมวดหมู่</MenuItem>
-                  {categories.map(cat => (
-                    <MenuItem key={cat} value={cat}>{cat}</MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </Paper>
-          </Grid>
-          <Grid item xs={12} md={6}>
-            <Typography variant="h6" gutterBottom>Generated Tools ({filteredTools.length})</Typography>
-            <Paper sx={{ height: '70vh', overflow: 'auto' }}>
-              <Box p={2}>
-                {filteredTools.map((tool) => (
-                  <Card
-                    key={tool.id}
-                    sx={{ mb: 2, cursor: 'pointer', border: selectedTool?.id === tool.id ? '2px solid' : '1px solid', borderColor: selectedTool?.id === tool.id ? 'primary.main' : 'divider' }}
-                    onClick={() => setSelectedTool(tool)}
-                  >
-                    <CardContent>
-                      <Box display="flex" justifyContent="space-between">
-                        <Box>
-                          <Typography variant="h6" component="div" display="flex" alignItems="center" gap={1}>
-                            {getLanguageIcon(tool.language)} {tool.name}
-                            {tool.is_tested ? <CheckCircleIcon color="success" fontSize="small" /> : <CancelIcon color="error" fontSize="small" />}
-                          </Typography>
-                          <Typography color="text.secondary" sx={{ mb: 1 }}>{tool.description}</Typography>
-                          <Chip label={tool.language} size="small" sx={{ mr: 1 }} />
-                          <Chip label={tool.category} size="small" />
-                        </Box>
-                        <Box>
-                          <IconButton size="small" onClick={(e) => { e.stopPropagation(); copyToClipboard(tool.code); }}><ContentCopyIcon /></IconButton>
-                          <IconButton size="small" onClick={(e) => { e.stopPropagation(); downloadCode(tool.code, `${tool.name}.${tool.language === 'python' ? 'py' : 'js'}`); }}><DownloadIcon /></IconButton>
-                          <IconButton size="small" onClick={(e) => { e.stopPropagation(); deleteTool(tool.id); }}><DeleteIcon /></IconButton>
-                        </Box>
-                      </Box>
-                    </CardContent>
-                  </Card>
+            </div>
+            <div className="flex flex-col">
+              <label htmlFor="language-select" className="sr-only">เลือกภาษา</label>
+              <select
+                id="language-select"
+                aria-label="เลือกภาษา"
+                value={selectedLanguage}
+                onChange={(e) => setSelectedLanguage(e.target.value)}
+                className="px-3 py-2 border border-gray-300 rounded-md"
+              >
+                <option value="all">ทุกภาษา</option>
+                {languages.map(lang => (
+                  <option key={lang} value={lang}>{lang}</option>
                 ))}
-              </Box>
-            </Paper>
-          </Grid>
-          <Grid item xs={12} md={6}>
-            {selectedTool ? (
-              <Card sx={{ height: 'calc(70vh + 48px)' }}>
-                <CardHeader title={selectedTool.name} subheader={selectedTool.description} />
-                <CardContent>
-                  <Typography variant="subtitle2" gutterBottom>Code</Typography>
-                  <TextareaAutosize
-                    value={selectedTool.code}
-                    readOnly
-                    style={{ width: '100%', minHeight: '40vh', fontFamily: 'monospace', fontSize: '0.875rem', border: '1px solid #ccc', padding: '8px' }}
-                  />
-                </CardContent>
-              </Card>
-            ) : (
-              <Paper sx={{ height: 'calc(70vh + 48px)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column' }}>
-                <CodeIcon sx={{ fontSize: 60, color: 'text.disabled' }} />
-                <Typography color="text.secondary">เลือก Tool เพื่อดูรายละเอียด</Typography>
-              </Paper>
-            )}
-          </Grid>
-        </Grid>
-      )}
+              </select>
+            </div>
+            <div className="flex flex-col">
+              <label htmlFor="category-select" className="sr-only">เลือกหมวดหมู่</label>
+              <select
+                id="category-select"
+                aria-label="เลือกหมวดหมู่"
+                value={selectedCategory}
+                onChange={(e) => setSelectedCategory(e.target.value)}
+                className="px-3 py-2 border border-gray-300 rounded-md"
+              >
+                <option value="all">ทุกหมวดหมู่</option>
+                {categories.map(cat => (
+                  <option key={cat} value={cat}>{cat}</option>
+                ))}
+              </select>
+            </div>
+          </div>
 
-      {activeTab === 'generate' && (
-        <Card>
-          <CardHeader title={<Box display="flex" alignItems="center" gap={1}><BoltIcon /> สร้าง Tool อัตโนมัติ</Box>} />
-          <CardContent sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-            <TextField
-              fullWidth
-              label="อธิบาย Tool ที่ต้องการ"
-              placeholder="เช่น: สร้างฟังก์ชันสำหรับแปลงไฟล์ CSV เป็น JSON"
-              value={generatorForm.tool_description}
-              onChange={(e) => setGeneratorForm(prev => ({ ...prev, tool_description: e.target.value }))}
-              multiline
-              rows={4}
-            />
-            <FormControl fullWidth>
-              <InputLabel>ภาษาโปรแกรม</InputLabel>
-              <Select value={generatorForm.language} label="ภาษาโปรแกรม" onChange={(e) => setGeneratorForm(prev => ({ ...prev, language: e.target.value }))}>
-                <MenuItem value="python">Python</MenuItem>
-                <MenuItem value="javascript">JavaScript</MenuItem>
-              </Select>
-            </FormControl>
-            <Button onClick={generateTool} variant="contained" disabled={isLoading || !generatorForm.tool_description.trim()}>
-              {isLoading ? <CircularProgress size={24} /> : 'สร้าง Tool'}
-            </Button>
-            {generatedCode && (
-              <Box>
-                <Typography variant="subtitle2" gutterBottom>Code ที่สร้างขึ้น</Typography>
-                <TextareaAutosize
-                  value={generatedCode}
-                  onChange={(e) => setGeneratedCode(e.target.value)}
-                  style={{ width: '100%', minHeight: '30vh', fontFamily: 'monospace', fontSize: '0.875rem', border: '1px solid #ccc', padding: '8px' }}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Tools List */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold">Generated Tools ({filteredTools.length})</h3>
+              <ScrollArea className="h-[600px]">
+                <div className="space-y-3">
+                  {filteredTools.map((tool) => (
+                    <Card
+                      key={tool.id}
+                      className={`cursor-pointer transition-colors ${
+                        selectedTool?.id === tool.id ? 'bg-blue-50 border-blue-200' : 'hover:bg-gray-50'
+                      }`}
+                      onClick={() => setSelectedTool(tool)}
+                    >
+                      <CardContent className="p-4">
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <div className="flex items-center space-x-2">
+                              <span className="text-lg">{getLanguageIcon(tool.language)}</span>
+                              <h4 className="font-medium text-gray-900">{tool.name}</h4>
+                              {tool.is_tested ? (
+                                <CheckCircle className="w-4 h-4 text-green-500" />
+                              ) : (
+                                <XCircle className="w-4 h-4 text-red-500" />
+                              )}
+                            </div>
+                            <p className="text-sm text-gray-600 mt-1">{tool.description}</p>
+                            <div className="flex items-center space-x-2 mt-2">
+                              <Badge variant="outline">{tool.language}</Badge>
+                              <Badge variant="outline">{tool.category}</Badge>
+                              <span className="text-xs text-gray-500">ใช้งาน {tool.usage_count} ครั้ง</span>
+                            </div>
+                          </div>
+                          <div className="flex space-x-1">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                copyToClipboard(tool.code)
+                              }}
+                            >
+                              <Copy className="w-4 h-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                downloadCode(tool.code, `${tool.name}.${tool.language === 'python' ? 'py' : 'js'}`)
+                              }}
+                            >
+                              <Download className="w-4 h-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                deleteTool(tool.id)
+                              }}
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </ScrollArea>
+            </div>
+
+            {/* Tool Detail */}
+            <div>
+              {selectedTool ? (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center justify-between">
+                      <div className="flex items-center space-x-2">
+                        <span className="text-lg">{getLanguageIcon(selectedTool.language)}</span>
+                        {selectedTool.name}
+                        {selectedTool.is_tested ? (
+                          <CheckCircle className="w-5 h-5 text-green-500" />
+                        ) : (
+                          <XCircle className="w-5 h-5 text-red-500" />
+                        )}
+                      </div>
+                      <div className="flex space-x-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => copyToClipboard(selectedTool.code)}
+                        >
+                          <Copy className="w-4 h-4 mr-2" />
+                          คัดลอก
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => downloadCode(
+                            selectedTool.code, 
+                            `${selectedTool.name}.${selectedTool.language === 'python' ? 'py' : 'js'}`
+                          )}
+                        >
+                          <Download className="w-4 h-4 mr-2" />
+                          ดาวน์โหลด
+                        </Button>
+                      </div>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div>
+                      <label className="text-sm font-medium text-gray-700">คำอธิบาย</label>
+                      <p className="text-sm text-gray-600 mt-1">{selectedTool.description}</p>
+                    </div>
+                    
+                    <div>
+                      <label className="text-sm font-medium text-gray-700">Code</label>
+                      <Textarea
+                        value={selectedTool.code}
+                        readOnly
+                        className="mt-1 h-80 font-mono text-sm"
+                      />
+                    </div>
+                    
+                    <div className="flex items-center space-x-4">
+                      <Badge variant="outline">{selectedTool.language}</Badge>
+                      <Badge variant="outline">{selectedTool.category}</Badge>
+                      <span className="text-sm text-gray-500">
+                        สร้างเมื่อ {new Date(selectedTool.created_at).toLocaleDateString('th-TH')}
+                      </span>
+                    </div>
+                  </CardContent>
+                </Card>
+              ) : (
+                <Card>
+                  <CardContent className="flex items-center justify-center h-64">
+                    <div className="text-center">
+                      <Code className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                      <p className="text-gray-500">เลือก Tool เพื่อดูรายละเอียด</p>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="generate" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <Zap className="w-5 h-5 mr-2" />
+                สร้าง Tool อัตโนมัติ
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div>
+                <label className="text-sm font-medium text-gray-700">อธิบาย Tool ที่ต้องการ</label>
+                <Textarea
+                  placeholder="เช่น: สร้างฟังก์ชันสำหรับแปลงไฟล์ CSV เป็น JSON"
+                  value={generatorForm.tool_description}
+                  onChange={(e) => setGeneratorForm(prev => ({
+                    ...prev,
+                    tool_description: e.target.value
+                  }))}
+                  className="mt-1"
                 />
-                <Box mt={2} display="flex" gap={1}>
-                  <Button variant="outlined" onClick={() => copyToClipboard(generatedCode)}><ContentCopyIcon /> คัดลอก</Button>
-                  <Button variant="outlined" onClick={() => downloadCode(generatedCode, `generated_tool.${generatorForm.language === 'python' ? 'py' : 'js'}`)}><DownloadIcon /> ดาวน์โหลด</Button>
-                  <Button variant="contained" onClick={() => { setToolForm(prev => ({ ...prev, code: generatedCode })); setActiveTab('create'); }}><SaveIcon /> บันทึกเป็น Tool</Button>
-                </Box>
-              </Box>
-            )}
-          </CardContent>
-        </Card>
-      )}
+              </div>
+              
+              <div>
+                <label className="text-sm font-medium text-gray-700">ภาษาโปรแกรม</label>
+                <label htmlFor="generator-language-select" className="sr-only">ภาษาโปรแกรม</label>
+                <select
+                  id="generator-language-select"
+                  aria-label="ภาษาโปรแกรม"
+                  value={generatorForm.language}
+                  onChange={(e) => setGeneratorForm(prev => ({
+                    ...prev,
+                    language: e.target.value
+                  }))}
+                  className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md"
+                >
+                  <option value="python">Python</option>
+                  <option value="javascript">JavaScript</option>
+                  <option value="java">Java</option>
+                  <option value="cpp">C++</option>
+                  <option value="go">Go</option>
+                </select>
+              </div>
+              
+              <Button 
+                onClick={generateTool} 
+                disabled={isLoading || !generatorForm.tool_description.trim()}
+                className="w-full"
+              >
+                {isLoading ? 'กำลังสร้าง...' : 'สร้าง Tool'}
+              </Button>
+              
+              {generatedCode && (
+                <div>
+                  <label className="text-sm font-medium text-gray-700">Code ที่สร้างขึ้น</label>
+                  <Textarea
+                    value={generatedCode}
+                    onChange={(e) => setGeneratedCode(e.target.value)}
+                    className="mt-1 h-80 font-mono text-sm"
+                  />
+                  <div className="flex space-x-2 mt-2">
+                    <Button
+                      variant="outline"
+                      onClick={() => copyToClipboard(generatedCode)}
+                    >
+                      <Copy className="w-4 h-4 mr-2" />
+                      คัดลอก
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => downloadCode(
+                        generatedCode, 
+                        `generated_tool.${generatorForm.language === 'python' ? 'py' : 'js'}`
+                      )}
+                    >
+                      <Download className="w-4 h-4 mr-2" />
+                      ดาวน์โหลด
+                    </Button>
+                    <Button
+                      onClick={() => {
+                        setToolForm(prev => ({
+                          ...prev,
+                          code: generatedCode
+                        }))
+                        setActiveTab('create')
+                      }}
+                    >
+                      <Save className="w-4 h-4 mr-2" />
+                      บันทึกเป็น Tool
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
 
-      {activeTab === 'create' && (
-        <Card>
-          <CardHeader title={<Box display="flex" alignItems="center" gap={1}><AddIcon /> สร้าง Tool ใหม่</Box>} />
-          <CardContent sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-            <TextField fullWidth label="ชื่อ Tool" value={toolForm.name} onChange={(e) => setToolForm(prev => ({ ...prev, name: e.target.value }))} />
-            <FormControl fullWidth>
-              <InputLabel>ภาษาโปรแกรม</InputLabel>
-              <Select value={toolForm.language} label="ภาษาโปรแกรม" onChange={(e) => setToolForm(prev => ({ ...prev, language: e.target.value }))}>
-                <MenuItem value="python">Python</MenuItem>
-                <MenuItem value="javascript">JavaScript</MenuItem>
-              </Select>
-            </FormControl>
-            <FormControl fullWidth>
-              <InputLabel>หมวดหมู่</InputLabel>
-              <Select value={toolForm.category} label="หมวดหมู่" onChange={(e) => setToolForm(prev => ({ ...prev, category: e.target.value }))}>
-                <MenuItem value="general">ทั่วไป</MenuItem>
-                <MenuItem value="data">ข้อมูล</MenuItem>
-              </Select>
-            </FormControl>
-            <TextField fullWidth label="คำอธิบาย" value={toolForm.description} onChange={(e) => setToolForm(prev => ({ ...prev, description: e.target.value }))} multiline rows={3} />
-            <TextareaAutosize
-              placeholder="เขียน Code ของคุณที่นี่..."
-              value={toolForm.code}
-              onChange={(e) => setToolForm(prev => ({ ...prev, code: e.target.value }))}
-              style={{ width: '100%', minHeight: '30vh', fontFamily: 'monospace', fontSize: '0.875rem', border: '1px solid #ccc', padding: '8px' }}
-            />
-            <Button onClick={saveTool} variant="contained" disabled={!toolForm.name.trim() || !toolForm.code.trim()}><SaveIcon /> บันทึก Tool</Button>
-          </CardContent>
-        </Card>
-      )}
-    </Box>
-  );
+        <TabsContent value="create" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <Plus className="w-5 h-5 mr-2" />
+                สร้าง Tool ใหม่
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium text-gray-700">ชื่อ Tool</label>
+                  <Input
+                    placeholder="ชื่อ Tool"
+                    value={toolForm.name}
+                    onChange={(e) => setToolForm(prev => ({
+                      ...prev,
+                      name: e.target.value
+                    }))}
+                    className="mt-1"
+                  />
+                </div>
+                
+                <div>
+                  <label className="text-sm font-medium text-gray-700">ภาษาโปรแกรม</label>
+                  <label htmlFor="tool-language-select" className="sr-only">ภาษาโปรแกรม</label>
+                  <select
+                    id="tool-language-select"
+                    aria-label="ภาษาโปรแกรม"
+                    value={toolForm.language}
+                    onChange={(e) => setToolForm(prev => ({
+                      ...prev,
+                      language: e.target.value
+                    }))}
+                    className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md"
+                  >
+                    <option value="python">Python</option>
+                    <option value="javascript">JavaScript</option>
+                    <option value="java">Java</option>
+                    <option value="cpp">C++</option>
+                    <option value="go">Go</option>
+                  </select>
+                </div>
+              </div>
+              
+              <div>
+                <label className="text-sm font-medium text-gray-700">หมวดหมู่</label>
+                <label htmlFor="tool-category-select" className="sr-only">หมวดหมู่</label>
+                <select
+                  id="tool-category-select"
+                  aria-label="หมวดหมู่"
+                  value={toolForm.category}
+                  onChange={(e) => setToolForm(prev => ({
+                    ...prev,
+                    category: e.target.value
+                  }))}
+                  className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md"
+                >
+                  <option value="general">ทั่วไป</option>
+                  <option value="data">ข้อมูล</option>
+                  <option value="web">เว็บ</option>
+                  <option value="automation">อัตโนมัติ</option>
+                  <option value="utility">เครื่องมือ</option>
+                  <option value="api">API</option>
+                </select>
+              </div>
+              
+              <div>
+                <label className="text-sm font-medium text-gray-700">คำอธิบาย</label>
+                <Textarea
+                  placeholder="อธิบายการใช้งาน Tool นี้"
+                  value={toolForm.description}
+                  onChange={(e) => setToolForm(prev => ({
+                    ...prev,
+                    description: e.target.value
+                  }))}
+                  className="mt-1"
+                />
+              </div>
+              
+              <div>
+                <label className="text-sm font-medium text-gray-700">Code</label>
+                <Textarea
+                  placeholder="เขียน Code ของคุณที่นี่..."
+                  value={toolForm.code}
+                  onChange={(e) => setToolForm(prev => ({
+                    ...prev,
+                    code: e.target.value
+                  }))}
+                  className="mt-1 h-80 font-mono text-sm"
+                />
+              </div>
+              
+              <div className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  id="is_tested"
+                  checked={toolForm.is_tested}
+                  onChange={(e) => setToolForm(prev => ({
+                    ...prev,
+                    is_tested: e.target.checked
+                  }))}
+                />
+                <label htmlFor="is_tested" className="text-sm text-gray-700">
+                  ทดสอบแล้ว
+                </label>
+              </div>
+              
+              <Button 
+                onClick={saveTool}
+                disabled={!toolForm.name.trim() || !toolForm.code.trim()}
+                className="w-full"
+              >
+                <Save className="w-4 h-4 mr-2" />
+                บันทึก Tool
+              </Button>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
+    </div>
+  )
 }
 
