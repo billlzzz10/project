@@ -1,10 +1,8 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, current_app
 from ..models import PromptTemplate, GeneratedTool, db
-from ..services.ai_service import AIService
 import json
 
 prompt_tool_bp = Blueprint('prompt_tool', __name__, url_prefix='/api/prompt-tool')
-ai_service = AIService()
 
 # Prompt Template Routes
 @prompt_tool_bp.route('/prompts', methods=['GET'])
@@ -100,7 +98,7 @@ def generate_prompt():
     if not task_description:
         return jsonify({'error': 'Task description is required'}), 400
     
-    result = ai_service.generate_prompt(task_description, examples)
+    result = current_app.ai_service.generate_prompt(task_description, examples)
     
     if 'error' in result:
         return jsonify(result), 500
@@ -221,7 +219,7 @@ def generate_tool():
     if not tool_description:
         return jsonify({'error': 'Tool description is required'}), 400
     
-    result = ai_service.generate_tool_code(tool_description, language)
+    result = current_app.ai_service.generate_tool_code(tool_description, language)
     
     if 'error' in result:
         return jsonify(result), 500

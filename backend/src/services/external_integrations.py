@@ -10,7 +10,7 @@ class GoogleDriveService:
         
     @property
     def credentials_path(self):
-        return current_app.config.get('GOOGLE_DRIVE_CREDENTIALS')
+        return current_app.config.get('GOOGLE_APPLICATION_CREDENTIALS')
 
     def upload_file(self, file_content, filename, folder_id=None):
         """Upload file to Google Drive"""
@@ -35,7 +35,7 @@ class GoogleSheetsService:
 
     @property
     def credentials_path(self):
-        return current_app.config.get('GOOGLE_SHEETS_CREDENTIALS')
+        return current_app.config.get('GOOGLE_APPLICATION_CREDENTIALS')
         
     def update_sheet(self, spreadsheet_id, range_name, values):
         """Update Google Sheets with data"""

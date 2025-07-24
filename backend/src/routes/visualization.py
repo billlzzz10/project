@@ -1,5 +1,4 @@
-from flask import Blueprint, request, jsonify
-from ..services.visualization_service import visualization_service
+from flask import Blueprint, request, jsonify, current_app
 
 visualization_bp = Blueprint('visualization', __name__, url_prefix='/api/visualizations')
 
@@ -17,7 +16,7 @@ def create_board():
         if not title:
             return jsonify({'error': 'Title is required'}), 400
         
-        result = visualization_service.create_board(user_id, title, description, elements, template)
+        result = current_app.visualization_service.create_board(user_id, title, description, elements, template)
         return jsonify(result), 200
         
     except Exception as e:
@@ -27,7 +26,7 @@ def create_board():
 def get_board(board_id):
     """Get a board by ID"""
     try:
-        result = visualization_service.get_board(board_id)
+        result = current_app.visualization_service.get_board(board_id)
         return jsonify(result), 200
         
     except ValueError as e:
@@ -45,7 +44,7 @@ def update_board(board_id):
         description = data.get('description')
         elements = data.get('elements')
         
-        result = visualization_service.update_board(board_id, title, description, elements)
+        result = current_app.visualization_service.update_board(board_id, title, description, elements)
         return jsonify(result), 200
         
     except ValueError as e:
@@ -58,7 +57,7 @@ def update_board(board_id):
 def delete_board(board_id):
     """Delete a board"""
     try:
-        result = visualization_service.delete_board(board_id)
+        result = current_app.visualization_service.delete_board(board_id)
         return jsonify(result), 200
         
     except ValueError as e:
@@ -72,7 +71,7 @@ def list_boards():
     """List all boards for a user"""
     try:
         user_id = request.args.get('user_id', 1, type=int)
-        result = visualization_service.list_boards(user_id)
+        result = current_app.visualization_service.list_boards(user_id)
         return jsonify(result), 200
         
     except Exception as e:
@@ -93,7 +92,7 @@ def create_graph():
         if not title:
             return jsonify({'error': 'Title is required'}), 400
         
-        result = visualization_service.create_graph(user_id, title, description, nodes, edges, layout)
+        result = current_app.visualization_service.create_graph(user_id, title, description, nodes, edges, layout)
         return jsonify(result), 200
         
     except Exception as e:
@@ -106,7 +105,7 @@ def get_graph():
         user_id = request.args.get('user_id', 1, type=int)
         graph_id = request.args.get('graph_id')
         
-        result = visualization_service.get_graph(user_id, graph_id)
+        result = current_app.visualization_service.get_graph(user_id, graph_id)
         return jsonify(result), 200
         
     except Exception as e:
@@ -125,7 +124,7 @@ def generate_mind_map():
         if not title or not content:
             return jsonify({'error': 'Title and content are required'}), 400
         
-        result = visualization_service.generate_mind_map_from_text(user_id, title, content, description)
+        result = current_app.visualization_service.generate_mind_map_from_text(user_id, title, content, description)
         return jsonify(result), 200
         
     except Exception as e:
@@ -143,7 +142,7 @@ def generate_graph_from_work():
         if not title:
             return jsonify({'error': 'Title is required'}), 400
         
-        result = visualization_service.generate_graph_from_work_items(user_id, title, description)
+        result = current_app.visualization_service.generate_graph_from_work_items(user_id, title, description)
         return jsonify(result), 200
         
     except ValueError as e:

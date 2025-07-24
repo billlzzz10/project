@@ -1,11 +1,7 @@
-from flask import Blueprint, request, jsonify
-from ..services.n8n_service import N8NService
-from ..services.external_integrations import IntegrationManager
+from flask import Blueprint, request, jsonify, current_app
 import json
 
 integrations_bp = Blueprint('integrations', __name__, url_prefix='/api/integrations')
-n8n_service = N8NService()
-integration_manager = IntegrationManager()
 
 # n8n Integration Routes
 @integrations_bp.route('/n8n/trigger', methods=['POST'])
@@ -18,7 +14,7 @@ def trigger_n8n_workflow():
     if not workflow_name:
         return jsonify({'error': 'Workflow name is required'}), 400
     
-    result = n8n_service.trigger_workflow(workflow_name, workflow_data)
+    result = current_app.n8n_service.trigger_workflow(workflow_name, workflow_data)
     
     if 'error' in result:
         return jsonify(result), 500
@@ -32,7 +28,7 @@ def trigger_backup():
     filename = data.get('filename', 'manual_backup')
     backup_data = data.get('data', {})
     
-    result = n8n_service.backup_to_drive(backup_data, filename)
+    result = current_app.n8n_service.backup_to_drive(backup_data, filename)
     return jsonify(result)
 
 @integrations_bp.route('/n8n/sync-sheets', methods=['POST'])
@@ -42,7 +38,7 @@ def trigger_sheets_sync():
     sheet_name = data.get('sheet_name', 'default_sheet')
     sync_data = data.get('data', [])
     
-    result = n8n_service.sync_to_sheets(sheet_name, sync_data)
+    result = current_app.n8n_service.sync_to_sheets(sheet_name, sync_data)
     return jsonify(result)
 
 @integrations_bp.route('/n8n/report', methods=['POST'])
@@ -52,14 +48,14 @@ def trigger_report():
     report_type = data.get('report_type', 'daily')
     report_data = data.get('data', {})
     
-    result = n8n_service.send_report(report_type, report_data)
+    result = current_app.n8n_service.send_report(report_type, report_data)
     return jsonify(result)
 
 # Direct Integration Routes
 @integrations_bp.route('/backup/full', methods=['POST'])
 def full_backup():
     """Perform full backup of all data"""
-    result = integration_manager.backup_all_data()
+    result = current_app.integration_manager.backup_all_data()
     
     if 'error' in result:
         return jsonify(result), 500
@@ -69,7 +65,7 @@ def full_backup():
 @integrations_bp.route('/reports/daily', methods=['POST'])
 def daily_report():
     """Generate daily report"""
-    result = integration_manager.generate_daily_report()
+    result = current_app.integration_manager.generate_daily_report()
     
     if 'error' in result:
         return jsonify(result), 500
@@ -79,7 +75,7 @@ def daily_report():
 @integrations_bp.route('/test-connections', methods=['GET'])
 def test_connections():
     """Test all external service connections"""
-    results = integration_manager.test_all_connections()
+    results = current_app.integration_manager.test_all_connections()
     return jsonify(results)
 
 # Google Drive Routes
@@ -90,7 +86,7 @@ def upload_to_drive():
     file_content = data.get('content', '')
     filename = data.get('filename', 'upload.txt')
     
-    result = integration_manager.drive_service.upload_file(file_content, filename)
+    result = current_app.integration_manager.drive_service.upload_file(file_content, filename)
     return jsonify(result)
 
 # Google Sheets Routes
@@ -101,14 +97,14 @@ def sync_to_sheets():
     sheet_name = data.get('sheet_name', 'default')
     sync_data = data.get('data', [])
     
-    result = integration_manager.sheets_service.sync_data(sheet_name, sync_data)
+    result = current_app.integration_manager.sheets_service.sync_data(sheet_name, sync_data)
     return jsonify(result)
 
 # Notion Routes
 @integrations_bp.route('/notion/pages/<database_id>', methods=['GET'])
 def get_notion_pages(database_id):
     """Get pages count from Notion database"""
-    result = integration_manager.notion_service.get_database_pages(database_id)
+    result = current_app.integration_manager.notion_service.get_database_pages(database_id)
     
     if 'error' in result:
         return jsonify(result), 500
@@ -125,7 +121,7 @@ def create_notion_page():
     if not database_id:
         return jsonify({'error': 'Database ID is required'}), 400
     
-    result = integration_manager.notion_service.create_page(database_id, properties)
+    result = current_app.integration_manager.notion_service.create_page(database_id, properties)
     
     if 'error' in result:
         return jsonify(result), 500
@@ -136,7 +132,7 @@ def create_notion_page():
 @integrations_bp.route('/airtable/records/<base_id>/<table_name>', methods=['GET'])
 def get_airtable_records(base_id, table_name):
     """Get records count from Airtable"""
-    result = integration_manager.airtable_service.get_records_count(base_id, table_name)
+    result = current_app.integration_manager.airtable_service.get_records_count(base_id, table_name)
     
     if 'error' in result:
         return jsonify(result), 500
@@ -154,7 +150,7 @@ def create_airtable_record():
     if not base_id or not table_name:
         return jsonify({'error': 'Base ID and table name are required'}), 400
     
-    result = integration_manager.airtable_service.create_record(base_id, table_name, fields)
+    result = current_app.integration_manager.airtable_service.create_record(base_id, table_name, fields)
     
     if 'error' in result:
         return jsonify(result), 500
@@ -165,7 +161,7 @@ def create_airtable_record():
 @integrations_bp.route('/schedule/daily-backup', methods=['POST'])
 def schedule_daily_backup():
     """Schedule daily backup at 2 PM"""
-    result = n8n_service.schedule_daily_report()
+    result = current_app.n8n_service.schedule_daily_report()
     return jsonify(result)
 
 @integrations_bp.route('/schedule/sync-sheets', methods=['POST'])

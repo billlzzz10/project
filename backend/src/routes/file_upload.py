@@ -4,10 +4,8 @@ from datetime import datetime
 from flask import Blueprint, request, jsonify, current_app
 from werkzeug.utils import secure_filename
 from ..models import db, UploadedFile, RAGDocument
-from ..services.enhanced_rag_service import EnhancedRAGService
 
 file_upload_bp = Blueprint('file_upload', __name__, url_prefix='/api/files')
-enhanced_rag_service = EnhancedRAGService()
 
 # Allowed file extensions
 ALLOWED_EXTENSIONS = {
@@ -55,14 +53,15 @@ def upload_file():
         file.save(file_path)
         file_size = os.path.getsize(file_path)
         
-        # Create database record
+        # Create database record for the uploaded file
+        # Maintain backward compatibility: set both file_path and stored_filename if model supports it
         uploaded_file = UploadedFile(
             user_id=user_id,
             original_filename=original_filename,
+            file_path=file_path,
             stored_filename=unique_filename,
             file_type=file_extension,
             file_size=file_size,
-            file_path=file_path,
             is_processed=False
         )
         
@@ -70,7 +69,7 @@ def upload_file():
         db.session.commit()
         
         # Process file asynchronously (in a real app, this would be a background task)
-        success = enhanced_rag_service.process_uploaded_file(uploaded_file.id, user_id)
+        success = current_app.rag_service.process_uploaded_file(uploaded_file.id, user_id)
         
         if success:
             return jsonify({
@@ -162,7 +161,7 @@ def reprocess_file(file_id):
             return jsonify({'error': 'File not found'}), 404
         
         # Reprocess file
-        success = enhanced_rag_service.process_uploaded_file(file_id, user_id)
+        success = current_app.rag_service.process_uploaded_file(file_id, user_id)
         
         if success:
             return jsonify({'message': 'File reprocessed successfully'}), 200
@@ -185,7 +184,7 @@ def search_documents():
             return jsonify({'error': 'Query is required'}), 400
         
         # Perform semantic search
-        results = enhanced_rag_service.semantic_search(query, user_id, top_k)
+        results = current_app.rag_service.semantic_search(query, user_id, top_k)
         
         return jsonify({
             'query': query,
@@ -195,51 +194,6 @@ def search_documents():
         
     except Exception as e:
         return jsonify({'error': f'Search failed: {str(e)}'}), 500
-
-@file_upload_bp.route('/notion/search', methods=['POST'])
-def search_notion():
-    """Search Notion pages"""
-    try:
-        data = request.get_json()
-        query = data.get('query', '')
-        user_id = data.get('user_id', 1)
-        
-        if not query:
-            return jsonify({'error': 'Query is required'}), 400
-        
-        # Search Notion pages
-        pages = enhanced_rag_service.search_notion_pages(query, user_id)
-        
-        return jsonify({
-            'query': query,
-            'pages': pages,
-            'total_pages': len(pages)
-        }), 200
-        
-    except Exception as e:
-        return jsonify({'error': f'Notion search failed: {str(e)}'}), 500
-
-@file_upload_bp.route('/notion/add', methods=['POST'])
-def add_notion_page():
-    """Add Notion page to RAG system"""
-    try:
-        data = request.get_json()
-        page_id = data.get('page_id', '')
-        user_id = data.get('user_id', 1)
-        
-        if not page_id:
-            return jsonify({'error': 'Page ID is required'}), 400
-        
-        # Add Notion page to RAG
-        success = enhanced_rag_service.add_notion_page_to_rag(page_id, user_id)
-        
-        if success:
-            return jsonify({'message': 'Notion page added to RAG successfully'}), 200
-        else:
-            return jsonify({'error': 'Failed to add Notion page to RAG'}), 500
-            
-    except Exception as e:
-        return jsonify({'error': f'Failed to add Notion page: {str(e)}'}), 500
 
 @file_upload_bp.route('/rag/context', methods=['POST'])
 def get_rag_context():
@@ -254,7 +208,7 @@ def get_rag_context():
             return jsonify({'error': 'Query is required'}), 400
         
         # Get RAG context
-        context = enhanced_rag_service.get_rag_context(query, user_id, max_length)
+        context = current_app.rag_service.get_rag_context(query, user_id, max_length)
         
         return jsonify({
             'query': query,
@@ -264,19 +218,4 @@ def get_rag_context():
         
     except Exception as e:
         return jsonify({'error': f'Failed to get RAG context: {str(e)}'}), 500
-
-@file_upload_bp.route('/rag/rebuild', methods=['POST'])
-def rebuild_rag_index():
-    """Rebuild RAG index"""
-    try:
-        data = request.get_json()
-        user_id = data.get('user_id')  # None for all users
-        
-        # Rebuild index
-        enhanced_rag_service.rebuild_index(user_id)
-        
-        return jsonify({'message': 'RAG index rebuilt successfully'}), 200
-        
-    except Exception as e:
-        return jsonify({'error': f'Failed to rebuild RAG index: {str(e)}'}), 500
 

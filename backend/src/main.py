@@ -3,13 +3,23 @@ from flask_cors import CORS
 import os
 
 from .models import db
-from .config import DevelopmentConfig, ProductionConfig
+from .config import DevelopmentConfig
+
+# Import service classes
+from .services.ai_service import AIService
+from .services.analytics_service import AnalyticsService
+from .services.enhanced_rag_service import EnhancedRAGService
+from .services.external_integrations import IntegrationManager
+from .services.n8n_service import N8NService
+from .services.notification_service import NotificationService
+from .services.scheduler_service import SchedulerService
+from .services.visualization_service import VisualizationService
+from .services.notion_service import NotionService
 
 # Import all blueprints
-from .chat import chat_bp
+from .routes.chat import chat_bp
 from .routes.profile import profile_bp
 from .routes.sharing import sharing_bp
-# Assuming other blueprints are in src/routes
 from .routes.analytics import analytics_bp
 from .routes.automation import automation_bp
 from .routes.file_upload import file_upload_bp
@@ -17,8 +27,7 @@ from .routes.integrations import integrations_bp
 from .routes.notification import notification_bp
 from .routes.prompt_tool import prompt_tool_bp
 from .routes.visualization import visualization_bp
-# Note: user_bp is missing from the provided file structure, assuming it exists
-# from .routes.user import user_bp
+from .routes.notion import notion_bp
 
 
 def create_app(config_object=DevelopmentConfig):
@@ -32,19 +41,35 @@ def create_app(config_object=DevelopmentConfig):
     # Initialize extensions
     db.init_app(app)
 
-    # Register blueprints
-    app.register_blueprint(chat_bp, url_prefix='/api/chat')
-    app.register_blueprint(profile_bp, url_prefix='/api/profile')
-    app.register_blueprint(sharing_bp, url_prefix='/api/sharing')
-    app.register_blueprint(analytics_bp, url_prefix='/api/analytics')
-    app.register_blueprint(automation_bp, url_prefix='/api/automation')
-    app.register_blueprint(file_upload_bp, url_prefix='/api/files')
-    app.register_blueprint(integrations_bp, url_prefix='/api/integrations')
-    app.register_blueprint(notification_bp, url_prefix='/api/notifications')
-    app.register_blueprint(prompt_tool_bp, url_prefix='/api/prompt-tool')
-    app.register_blueprint(visualization_bp, url_prefix='/api/visualization')
-    # app.register_blueprint(user_bp, url_prefix='/api/users')
+    # Initialize and attach services to the app context
+    with app.app_context():
+        app.ai_service = AIService()
+        app.analytics_service = AnalyticsService()
+        try:
+            app.rag_service = EnhancedRAGService()
+        except Exception as e:
+            import logging
+            logging.error(f"Failed to initialize EnhancedRAGService: {e}")
+            app.rag_service = None
+        app.integration_manager = IntegrationManager()
+        app.n8n_service = N8NService()
+        app.notification_service = NotificationService()
+        app.scheduler_service = SchedulerService()
+        app.visualization_service = VisualizationService()
+        app.notion_service = NotionService()
 
+    # Register blueprints
+    app.register_blueprint(chat_bp)
+    app.register_blueprint(profile_bp)
+    app.register_blueprint(sharing_bp)
+    app.register_blueprint(analytics_bp)
+    app.register_blueprint(automation_bp)
+    app.register_blueprint(file_upload_bp)
+    app.register_blueprint(integrations_bp)
+    app.register_blueprint(notification_bp)
+    app.register_blueprint(prompt_tool_bp)
+    app.register_blueprint(visualization_bp)
+    app.register_blueprint(notion_bp)
 
     with app.app_context():
         # Import all models to ensure they are registered with SQLAlchemy

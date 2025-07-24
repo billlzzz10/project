@@ -1,18 +1,15 @@
-from flask import Blueprint, request, jsonify
-from ..services.scheduler_service import scheduler_service
-from ..services.external_integrations import IntegrationManager
+from flask import Blueprint, request, jsonify, current_app
 from datetime import datetime
 
 automation_bp = Blueprint('automation', __name__, url_prefix='/api/automation')
-integration_manager = IntegrationManager()
 
 # Scheduler Management Routes
 @automation_bp.route('/scheduler/start', methods=['POST'])
 def start_scheduler():
     """Start the scheduler service"""
     try:
-        scheduler_service.setup_schedules()
-        scheduler_service.start_scheduler()
+        current_app.scheduler_service.setup_schedules()
+        current_app.scheduler_service.start_scheduler()
         return jsonify({
             "success": True,
             "message": "Scheduler started successfully",
@@ -25,7 +22,7 @@ def start_scheduler():
 def stop_scheduler():
     """Stop the scheduler service"""
     try:
-        scheduler_service.stop_scheduler()
+        current_app.scheduler_service.stop_scheduler()
         return jsonify({
             "success": True,
             "message": "Scheduler stopped successfully",
@@ -37,7 +34,7 @@ def stop_scheduler():
 @automation_bp.route('/scheduler/status', methods=['GET'])
 def get_scheduler_status():
     """Get scheduler status and scheduled jobs"""
-    status = scheduler_service.get_schedule_status()
+    status = current_app.scheduler_service.get_schedule_status()
     return jsonify(status)
 
 @automation_bp.route('/scheduler/jobs', methods=['POST'])
@@ -52,15 +49,15 @@ def add_custom_job():
     
     # For now, we'll only support predefined job types
     predefined_jobs = {
-        "backup": scheduler_service.daily_backup_job,
-        "report": scheduler_service.daily_report_job,
-        "sync": scheduler_service.sync_sheets_job
+        "backup": current_app.scheduler_service.daily_backup_job,
+        "report": current_app.scheduler_service.daily_report_job,
+        "sync": current_app.scheduler_service.sync_sheets_job
     }
     
     if job_name not in predefined_jobs:
         return jsonify({"error": f"Job type '{job_name}' not supported"}), 400
     
-    result = scheduler_service.add_custom_schedule(job_name, schedule_time, predefined_jobs[job_name])
+    result = current_app.scheduler_service.add_custom_schedule(job_name, schedule_time, predefined_jobs[job_name])
     
     if 'error' in result:
         return jsonify(result), 500
@@ -70,7 +67,7 @@ def add_custom_job():
 @automation_bp.route('/scheduler/jobs/<job_name>', methods=['DELETE'])
 def remove_job(job_name):
     """Remove scheduled job"""
-    result = scheduler_service.remove_schedule(job_name)
+    result = current_app.scheduler_service.remove_schedule(job_name)
     
     if 'error' in result:
         return jsonify(result), 500
@@ -81,7 +78,7 @@ def remove_job(job_name):
 @automation_bp.route('/backup/manual', methods=['POST'])
 def manual_backup():
     """Trigger manual backup"""
-    result = scheduler_service.manual_backup()
+    result = current_app.scheduler_service.manual_backup()
     
     if 'error' in result:
         return jsonify(result), 500
@@ -91,7 +88,7 @@ def manual_backup():
 @automation_bp.route('/report/manual', methods=['POST'])
 def manual_report():
     """Trigger manual report generation"""
-    result = scheduler_service.manual_report()
+    result = current_app.scheduler_service.manual_report()
     
     if 'error' in result:
         return jsonify(result), 500
@@ -102,7 +99,7 @@ def manual_report():
 def manual_sync():
     """Trigger manual sync to Google Sheets"""
     try:
-        scheduler_service.sync_sheets_job()
+        current_app.scheduler_service.sync_sheets_job()
         return jsonify({
             "success": True,
             "message": "Manual sync completed",
@@ -121,9 +118,9 @@ def schedule_backup():
     
     try:
         if frequency == 'daily':
-            result = scheduler_service.add_custom_schedule('daily_backup', backup_time, scheduler_service.daily_backup_job)
+            result = current_app.scheduler_service.add_custom_schedule('daily_backup', backup_time, current_app.scheduler_service.daily_backup_job)
         elif frequency == 'weekly':
-            result = scheduler_service.add_custom_schedule('weekly_backup', backup_time, scheduler_service.weekly_backup_job)
+            result = current_app.scheduler_service.add_custom_schedule('weekly_backup', backup_time, current_app.scheduler_service.weekly_backup_job)
         else:
             return jsonify({"error": "Frequency must be 'daily' or 'weekly'"}), 400
         
@@ -175,7 +172,7 @@ def schedule_report():
     
     try:
         if frequency == 'daily':
-            result = scheduler_service.add_custom_schedule('daily_report', report_time, scheduler_service.daily_report_job)
+            result = current_app.scheduler_service.add_custom_schedule('daily_report', report_time, current_app.scheduler_service.daily_report_job)
         else:
             return jsonify({"error": "Only daily frequency is supported for reports"}), 400
         
@@ -216,7 +213,7 @@ def schedule_sync():
     interval_hours = data.get('interval_hours', 2)  # Default every 2 hours
     
     try:
-        result = scheduler_service.add_custom_schedule('sync_sheets', str(interval_hours), scheduler_service.sync_sheets_job)
+        result = current_app.scheduler_service.add_custom_schedule('sync_sheets', str(interval_hours), current_app.scheduler_service.sync_sheets_job)
         return jsonify(result)
         
     except Exception as e:
@@ -251,10 +248,10 @@ def get_system_health():
     health_status = {
         "timestamp": datetime.utcnow().isoformat(),
         "scheduler": {
-            "status": "running" if scheduler_service.is_running else "stopped",
-            "jobs_count": len(scheduler_service.get_schedule_status().get('jobs', []))
+            "status": "running" if current_app.scheduler_service.is_running else "stopped",
+            "jobs_count": len(current_app.scheduler_service.get_schedule_status().get('jobs', []))
         },
-        "integrations": integration_manager.test_all_connections(),
+        "integrations": current_app.integration_manager.test_all_connections(),
         "database": {
             "status": "connected",
             "last_backup": "2024-01-15T02:00:00Z"

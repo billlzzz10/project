@@ -13,10 +13,9 @@ class Config:
 class DevelopmentConfig(Config):
     """Development configuration."""
     DEBUG = True
-    # Create instance folder if it doesn't exist
-    instance_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), '..', 'instance')
-    os.makedirs(instance_path, exist_ok=True)
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DEV_DATABASE_URL') or f"sqlite:///{os.path.join(instance_path, 'app_dev.db')}"
+    from pathlib import Path
+    default_db_path = Path(__file__).parent.resolve() / 'app_dev.db'
+    SQLALCHEMY_DATABASE_URI = os.environ.get('DEV_DATABASE_URL') or f"sqlite:///{default_db_path}"
     
     # AI API Keys
     GOOGLE_API_KEY = os.environ.get('GOOGLE_API_KEY')
@@ -25,7 +24,6 @@ class DevelopmentConfig(Config):
     # External APIs
     N8N_WEBHOOK_URL = os.environ.get('N8N_WEBHOOK_URL')
     GOOGLE_DRIVE_CREDENTIALS = os.environ.get('GOOGLE_DRIVE_CREDENTIALS')
-    GOOGLE_SHEETS_CREDENTIALS = os.environ.get('GOOGLE_SHEETS_CREDENTIALS')
     NOTION_API_KEY = os.environ.get('NOTION_API_KEY')
     AIRTABLE_API_KEY = os.environ.get('AIRTABLE_API_KEY')
 

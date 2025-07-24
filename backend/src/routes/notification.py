@@ -1,5 +1,4 @@
-from flask import Blueprint, request, jsonify
-from ..services.notification_service import notification_service
+from flask import Blueprint, request, jsonify, current_app
 
 notification_bp = Blueprint('notification', __name__, url_prefix='/api/notifications')
 
@@ -12,7 +11,7 @@ def get_notifications():
         offset = request.args.get('offset', 0, type=int)
         include_read = request.args.get('include_read', 'false').lower() == 'true'
         
-        notifications = notification_service.get_notifications(
+        notifications = current_app.notification_service.get_notifications(
             user_id, limit, offset, include_read
         )
         
@@ -30,7 +29,7 @@ def mark_as_read(notification_id):
     try:
         user_id = request.args.get('user_id', 1, type=int)
         
-        success = notification_service.mark_as_read(notification_id, user_id)
+        success = current_app.notification_service.mark_as_read(notification_id, user_id)
         
         if success:
             return jsonify({'message': 'Notification marked as read'}), 200
@@ -46,7 +45,7 @@ def mark_all_as_read():
     try:
         user_id = request.args.get('user_id', 1, type=int)
         
-        success = notification_service.mark_all_as_read(user_id)
+        success = current_app.notification_service.mark_all_as_read(user_id)
         
         if success:
             return jsonify({'message': 'All notifications marked as read'}), 200
@@ -62,7 +61,7 @@ def delete_notification(notification_id):
     try:
         user_id = request.args.get('user_id', 1, type=int)
         
-        success = notification_service.delete_notification(notification_id, user_id)
+        success = current_app.notification_service.delete_notification(notification_id, user_id)
         
         if success:
             return jsonify({'message': 'Notification deleted'}), 200
@@ -83,7 +82,7 @@ def test_notification():
         notification_type = data.get('type', 'info')
         action_url = data.get('action_url')
         
-        notification_id = notification_service.add_notification(
+        notification_id = current_app.notification_service.add_notification(
             user_id, title, message, notification_type, action_url
         )
         

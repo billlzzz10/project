@@ -6,44 +6,38 @@ from flask import current_app
 
 class AIService:
     def __init__(self):
-        self._gemini_model = None
-        self._hf_tokenizer = None
-        self._hf_model = None
+        # Initialize Google Gemini
+        self.gemini_model = None
+        self._configure_gemini()
+            
+        # Initialize Hugging Face models
+        self.hf_tokenizer = None
+        self.hf_model = None
+        self._load_huggingface_model()
     
-    @property
-    def gemini_model(self):
-        if self._gemini_model is None:
-            api_key = current_app.config.get('GOOGLE_API_KEY')
-            if api_key:
-                genai.configure(api_key=api_key)
-                self._gemini_model = genai.GenerativeModel('gemini-2.5-flash')
-        return self._gemini_model
-
-    @property
-    def hf_tokenizer(self):
-        if self._hf_tokenizer is None:
-            self._load_huggingface_model()
-        return self._hf_tokenizer
-
-    @property
-    def hf_model(self):
-        if self._hf_model is None:
-            self._load_huggingface_model()
-        return self._hf_model
-
+    def _configure_gemini(self):
+        """Configure Gemini model if API key is available"""
+        api_key = current_app.config.get('GOOGLE_API_KEY')
+        if api_key:
+            genai.configure(api_key=api_key)
+            self.gemini_model = genai.GenerativeModel('gemini-2.5-flash')
+    
     def _load_huggingface_model(self):
         """Load Hugging Face model for embeddings"""
         try:
             model_name = "sentence-transformers/all-MiniLM-L6-v2"
-            self._hf_tokenizer = AutoTokenizer.from_pretrained(model_name)
-            self._hf_model = AutoModel.from_pretrained(model_name)
+            self.hf_tokenizer = AutoTokenizer.from_pretrained(model_name)
+            self.hf_model = AutoModel.from_pretrained(model_name)
         except Exception as e:
             print(f"Error loading Hugging Face model: {e}")
     
     def generate_with_gemini(self, prompt, context=None):
         """Generate response using Google Gemini"""
         if not self.gemini_model:
-            return {"error": "Gemini API key not configured"}
+            # Try to configure again in case app context is now available
+            self._configure_gemini()
+            if not self.gemini_model:
+                return {"error": "Gemini API key not configured"}
         
         try:
             if context:
