@@ -47,7 +47,6 @@ jobs:
         run: |
           # Create the credentials file from the secret
           echo "$GOOGLE_APPLICATION_CREDENTIALS_JSON" > backend/instance/google_credentials.json
-          chmod 600 backend/instance/google_credentials.json
           export GOOGLE_APPLICATION_CREDENTIALS=backend/instance/google_credentials.json
           
           # Run the sync script

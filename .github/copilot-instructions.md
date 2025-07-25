@@ -3,66 +3,56 @@
 
 This document provides essential guidance for AI agents working on the AI Business App codebase.
 
-## Architecture Overview
+## Architecture Overview: Microservices with Docker
 
-The project is a monorepo containing three main parts: a Flask backend, a React frontend, and a separate RAG model service.
+The project has evolved into a microservices architecture, orchestrated by Docker Compose. This is the primary way to run and develop the application.
 
-1.  **`backend/`**: A Flask application that serves as the central API. It follows the **Application Factory Pattern**.
-    -   **Entry Point**: `run.py`
-    -   **App Creation**: `src/main.py` contains the `create_app` factory. This is where all services are initialized and attached to the Flask `app` object.
-    -   **Services (`src/services/`)**: Contains the business logic. Key services include:
-        -   `enhanced_rag_service.py`: Manages the Retrieval-Augmented Generation workflow, orchestrating calls to the embedding model and the vector database.
-        -   `ai_service.py`: Handles interactions with generative AI models (e.g., Google Gemini).
-        -   `notion_service.py` & `airtable_service.py`: Contain logic for interacting with external SaaS APIs directly.
-    -   **Routes (`src/routes/`)**: Defines the API endpoints. Each file corresponds to a feature area and uses a Flask Blueprint.
-    -   **Models (`src/models.py`)**: Contains all SQLAlchemy database models.
+**Core Services:**
 
-2.  **`frontend/`**: A React application for the user interface.
-    -   **Components (`src/components/`)**: All React components are located here. `App.jsx` is the main component that handles routing.
-    -   **API Communication**: Components make API calls to the Flask backend. The base URL is configured via `VITE_API_BASE` in the `.env` file and defaults to `http://localhost:5001/api`.
+1.  **`api_gateway/`**: A **FastAPI** application serving as the single entry point for all external traffic. It routes requests to the appropriate downstream service.
+2.  **`backend/`**: The original **Flask** application, now functioning as a core service handling business logic, database interactions, and integrations (Notion, Airtable).
+3.  **`frontend/`**: A **React** application for the user interface. It communicates with the `api_gateway`.
+4.  **`image-generation-service/`**: A **FastAPI** microservice dedicated to generating images using Vertex AI.
+5.  **`rag-model-service/`**: A **FastAPI** microservice for RAG (Retrieval-Augmented Generation) workflows, using LangChain and Pinecone.
 
-3.  **`rag_model_service/`**: A self-contained Gradio application responsible for generating text embeddings. It is intended to be run as a separate microservice. The main backend communicates with this service for embedding tasks.
+**Other Components:**
 
-## Development Workflow
+-   **`ai-assistant-extension/`**: A supplementary Chrome Extension. Not part of the core Dockerized services.
+-   **`docs/`**: Contains high-level project documentation.
 
-### Running the Application
+## Development Workflow: Docker Compose
 
-To run the full application, you need to start both the backend and frontend servers.
+The entire development environment is managed by `docker-compose.yml` at the project root.
 
-1.  **Backend Setup**:
-    ```bash
-    # Navigate to the backend directory
-    cd backend
+### **Primary Command: Running the Full Application**
 
-    # Activate the virtual environment
-    # On Windows
-    .\\venv\\Scripts\\activate
-    # On macOS/Linux
-    # source venv/bin/activate
+To build and run all services simultaneously, use this command from the project root:
 
-    # Run the server
-    python run.py
-    ```
-    The backend runs on `http://localhost:5001`.
+```bash
+docker-compose up --build
+```
 
-2.  **Frontend Setup**:
-    ```bash
-    # Navigate to the frontend directory
-    cd frontend
+-   This command builds the Docker image for each service if it doesn't exist or if the Dockerfile has changed.
+-   It starts all services defined in `docker-compose.yml`.
+-   Services are accessible on their specified ports (e.g., Frontend on `localhost:3000`, API Gateway on `localhost:8080`).
 
-    # Install dependencies (if not already done)
-    npm install
+### Service Communication
 
-    # Start the development server
-    npm start
-    ```
-    The frontend runs on `http://localhost:3000` and proxies API requests to the backend.
+Services communicate with each other over the internal Docker network using their service names as hostnames.
 
-### Key Patterns & Conventions
+-   **Example**: The `backend` service can call the `image-generation-service` at `http://image-generation-service:8000`.
+-   **Rule**: Do not use `localhost` for inter-service communication. Use the service name as defined in `docker-compose.yml`.
 
--   **Service Initialization**: All services are initialized within the `create_app` function in `backend/src/main.py` and attached to the `current_app` context. When accessing a service from a route, use `from flask import current_app` and then `current_app.my_service`. **Do not** instantiate services directly in route files.
--   **Environment Variables**: All secrets and configuration variables are managed through a `.env` file in the `backend/` directory. Refer to `.env.template` for the required variables.
--   **RAG Workflow**: The RAG process is decoupled. The `enhanced_rag_service.py` acts as an orchestrator. It calls the `rag_model_service/` (or a Hugging Face Inference API) to get embeddings and then uses a vector database service (like Pinecone) for storage and retrieval. It does **not** run the embedding model in its own process.
+### Environment Variables
+
+-   Each service has its own `.env.example` file.
+-   To run the application, you must create a corresponding `.env` file for each service that requires one (e.g., `backend/`, `image-generation-service/`).
+-   These `.env` files are loaded by `docker-compose.yml`. **Do not commit `.env` files to Git.**
+
+## Key Patterns & Conventions (Backend Flask Service)
+
+-   **Service Initialization**: All services within the `backend` Flask app are initialized in `src/main.py` and attached to `current_app`. Access them via `current_app.my_service`. **Do not** instantiate services directly in route files.
+-   **RAG Workflow**: The `backend` service orchestrates the RAG process, calling the `rag-model-service` for embeddings and interacting with a vector database.
 
 ---
 # Codacy Rules
@@ -119,4 +109,3 @@ Configuration for AI behavior when interacting with Codacy's MCP Server
 - If the user accepts, run the `codacy_setup_repository` tool
 - Do not ever try to run the `codacy_setup_repository` tool on your own
 - After setup, immediately retry the action that failed (only retry once)
----

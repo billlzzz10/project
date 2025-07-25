@@ -1,158 +1,105 @@
-# AI Business App
+# Project Orion: AI Agent Integration Framework
 
-แอปพลิเคชันธุรกิจอัจฉริยะที่ใช้เทคโนโลยี AI และ RAG (Retrieval-Augmented Generation) เพื่อช่วยในการจัดการข้อมูล การวิเคราะห์ และการทำงานร่วมกัน
-
-## 🚀 ฟีเจอร์หลัก
-
-- **ระบบ RAG และการนำเข้าไฟล์** - รองรับไฟล์หลากหลายรูปแบบ (PDF, HTML, CSV, DOCX, MD, TXT)
-- **ระบบแชทแบบเรียลไทม์** - สตรีมข้อความและแจ้งเตือน
-- **Dashboard และ Data Visualization** - แสดงข้อมูลสถิติและกราฟ
-- **Work Storage และ Profile Management** - จัดการงานและโปรไฟล์
-- **Content Sharing และ Embedding** - แชร์เนื้อหาหลายรูปแบบ
-- **AI ช่วยสร้าง Mind Map, Board, Graph** - สร้างแผนภาพและกราฟแบบอัตโนมัติ
-
-## 🏗️ สถาปัตยกรรม
-
-```
-ai-business-app/
-├── backend/           # Flask API Server
-│   ├── src/          # Source code
-│   ├── main.py       # Entry point
-│   └── requirements.txt
-├── frontend/         # React Application
-│   ├── src/          # React components
-│   ├── public/       # Static files
-│   └── package.json
-├── docs/             # Documentation
-└── README.md
-```
-
-## 🛠️ เทคโนโลยีที่ใช้
-
-### Backend
-- **Flask** - Web framework
-- **SQLAlchemy** - ORM
-- **FAISS** - Vector search
-- **Sentence Transformers** - Text embeddings
-- **Socket.IO** - Real-time communication
-- **Celery** - Background tasks
-
-### Frontend
-- **React.js** - UI framework
-- **Material-UI** - Component library
-- **Recharts** - Data visualization
-- **React Flow** - Mind maps and graphs
-- **Socket.IO Client** - Real-time features
-
-### AI Models
-- **Google Gemini 2.5 Flash**
-- **Hugging Face Models**
-
-## 🚀 การติดตั้งและรันโปรเจ็กต์
-
-### ข้อกำหนดระบบ
-- Python 3.11+
-- Node.js 20+
-- Redis (สำหรับ Celery)
-
-### Backend Setup
-
-```bash
-cd backend
-python -m venv venv
-source venv/bin/activate  # Windows: venv\Scripts\activate
-pip install -r requirements.txt
-
-# สร้างไฟล์ .env จาก template
-cp .env.template .env
-# แก้ไข .env ใส่ API keys และการตั้งค่าต่างๆ
-
-# รันแอป
-python main.py
-```
-
-### Frontend Setup
-
-```bash
-cd frontend
-npm install
-npm start
-```
-
-### Redis Setup (สำหรับ Background Tasks)
-
-```bash
-# Ubuntu/Debian
-sudo apt install redis-server
-sudo systemctl start redis-server
-
-# macOS
-brew install redis
-brew services start redis
-
-# Windows
-# ดาวน์โหลดจาก https://redis.io/download
-```
-
-## 📚 Documentation
-
-รายละเอียดเพิ่มเติมอยู่ในโฟลเดอร์ `docs/`:
-
-- [คู่มือการใช้งาน](docs/คู่มือการใช้งาน_AI_Business_App.md)
-- [คู่มือการ Deploy](docs/คู่มือการ_Deploy_AI_Business_App_2.md)
-- [รายงานการทดสอบ](docs/รายงานการทดสอบแอปพลิเคชัน_AI_Business_App_(เวอร์ชั.md)
-- [สรุปการพัฒนา](docs/สรุปการพัฒนา_AI_Business_App_(เวอร์ชันแก้ไข).md)
-
-## 🔧 การกำหนดค่า
-
-### Environment Variables (.env)
-
-```env
-# Database
-DATABASE_URL=sqlite:///ai_business_app.db
-
-# AI API Keys
-GOOGLE_API_KEY=your-google-api-key
-HUGGINGFACE_API_KEY=your-huggingface-api-key
-
-# External Integrations
-NOTION_API_KEY=your-notion-api-key
-N8N_WEBHOOK_URL=your-n8n-webhook-url
-
-# Redis
-REDIS_URL=redis://localhost:6379/0
-```
-
-## 🚀 Production Deployment
-
-ดู [คู่มือการ Deploy](docs/คู่มือการ_Deploy_AI_Business_App_2.md) สำหรับรายละเอียดการ deploy
-
-## 🤝 Contributing
-
-1. Fork โปรเจ็กต์
-2. สร้าง feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit การเปลี่ยนแปลง (`git commit -m 'Add some AmazingFeature'`)
-4. Push ไปยัง branch (`git push origin feature/AmazingFeature`)
-5. เปิด Pull Request
-
-## 📄 License
-
-โปรเจ็กต์นี้ใช้สิทธิ์แบบ MIT License
-
-## 📞 ติดต่อ
-
-หากมีคำถามหรือต้องการความช่วยเหลือ สามารถติดต่อผ่าน Issues ใน GitHub
+> **Vision:** "เราจะสร้างมาตรฐานกลางสำหรับ AI Agent Integration ที่ทำให้ทุกองค์กรสามารถใช้ประโยชน์จาก AI ได้อย่างปลอดภัย มีประสิทธิภาพ และยั่งยืน"
+> "To establish the central standard for AI Agent Integration, enabling all organizations to leverage AI safely, efficiently, and sustainably."
 
 ---
 
-## 📈 สถานะการพัฒนา
+This repository contains the source code for **Project Orion**, an integrated platform designed to be a comprehensive AI Agent Framework and Business OS. It is built with a modular, API-centric, and cloud-ready architecture to support robust workflow automation and a thriving developer ecosystem.
 
-- ✅ Phase 1-10: เสร็จสิ้นแล้ว
-- ✅ ระบบ RAG และการนำเข้าไฟล์
-- ✅ ระบบแชทแบบเรียลไทม์
-- ✅ Dashboard และ Data Visualization
-- ✅ Work Storage และ Profile Management
-- ✅ Content Sharing และ Embedding
-- ✅ AI Mind Map, Board, Graph Generator
+## 🏗️ Architecture: A Microservices Ecosystem
 
-ดูรายละเอียดใน [todo.md](todo.md)
+The project is architected as a collection of containerized microservices, orchestrated by Docker. This design ensures scalability, maintainability, and independent deployment of each component.
+
+```
+/
+├── 📄 docker-compose.yml       # Main orchestrator for all services
+├── 📂 api_gateway/              # (FastAPI) The single entry point for all incoming traffic
+├── 📂 backend/                  # (Flask) Core business logic, database, and legacy integrations
+├── 📂 frontend/                 # (React) The main user interface
+├── 📂 image-generation-service/ # (FastAPI) Dedicated service for image generation
+├── 📂 rag-model-service/        # (FastAPI) Handles RAG and agentic workflows
+├── 📂 ai-assistant-extension/   # (Chrome Extension) Browser-based UI component
+└── 📂 docs/                     # High-level documentation
+```
+
+## 🛠️ Technology Stack
+
+- **Orchestration**: Docker, Docker Compose
+- **API Gateway**: FastAPI, Uvicorn
+- **Core Services**: Python, FastAPI, Flask, SQLAlchemy
+- **Frontend**: React.js, Node.js, Material-UI, Recharts, React Flow
+- **AI & Machine Learning**: LangChain, Google Vertex AI (Imagen 2), Pinecone, Sentence Transformers
+- **Database**: PostgreSQL (Production), SQLite (Development)
+- **Workflow Automation**: n8n (planned)
+
+## 🚀 Getting Started: Development Environment
+
+The entire development environment is managed by Docker. The single command below is all you need to get started.
+
+### Prerequisites
+- Docker
+- Docker Compose
+
+### Running the Platform
+
+1.  **Prepare Environment Files**:
+    Each service that requires credentials or specific configurations has an `.env.example` file. Copy it to a `.env` file in the same directory and fill in the required values.
+    - `cp backend/.env.example backend/.env`
+    - `cp image-generation-service/.env.example image-generation-service/.env`
+    - `cp rag-model-service/.env.example rag-model-service/.env`
+
+2.  **Build and Run All Services**:
+    From the project root directory, run:
+    ```bash
+    docker-compose up --build
+    ```
+    This command will:
+    - Build the Docker image for each service.
+    - Start all containers.
+    - Connect them to a shared network.
+
+    Services will be available at:
+    - **Frontend**: `http://localhost:3000`
+    - **API Gateway**: `http://localhost:8080`
+    - **Backend (Direct)**: `http://localhost:5001`
+    - **Image Generation (Direct)**: `http://localhost:8000`
+    - **RAG Service (Direct)**: `http://localhost:8081`
+
+
+## 📈 Project Status & Progress
+
+This project follows the phased development plan outlined in the "Business OS Integration" proposal.
+
+- **Phase 0: Automation Foundation** - ✅ **Completed**
+  - *Established baseline automation and logging.*
+
+- **Phase 1: Core Infrastructure & API Gateway** - ✅ **Completed**
+  - *Google Cloud Workstation environment is prepared.*
+  - *Docker configurations for all services are complete.*
+  - *API Gateway v0.1 (`api_gateway`) has been developed and deployed.*
+
+- **Phase 2: Microservices & Automation** - 🚧 **In Progress**
+  - *Core microservices (`rag-model-service`, `image-generation-service`) have been scaffolded.*
+  - *Next steps: Implement core logic within these services and set up the n8n automation hub.*
+
+- **Phase 3: Business OS Integration** - ⏳ **Pending**
+- **Phase 4: Marketplace & Ecosystem** - ⏳ **Pending**
+
+## 📚 Documentation
+
+- **[Project Overview (TH/EN)](./docs/README.md)**: A high-level summary of the project's features and goals.
+- **[AI Agent Instructions](./.github/copilot-instructions.md)**: Essential guidelines for AI agents contributing to this codebase.
+- **Service-Specific `README.md`**: Each service directory contains its own `README.md` with detailed information.
+
+## 🤝 Contributing
+
+1.  Fork the repository.
+2.  Create a new feature branch (`git checkout -b feature/YourAmazingFeature`).
+3.  Commit your changes (`git commit -m 'Add some AmazingFeature'`).
+4.  Push to the branch (`git push origin feature/YourAmazingFeature`).
+5.  Open a Pull Request.
+
+## 📄 License
+
+This project is licensed under the MIT License.

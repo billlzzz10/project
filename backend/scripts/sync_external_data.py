@@ -21,7 +21,8 @@ def run_sync():
 
     # Create a Flask app context to access services and configs
     app = create_app()
-        notion_service = getattr(app, 'notion_service', None)
+    with app.app_context():
+        notion_service = getattr(app, "notion_service", None)
         # airtable_service = AirtableService() # To be implemented
         # gsheets_service = GoogleSheetsService() # To be implemented
 
@@ -31,16 +32,14 @@ def run_sync():
         if notion_service is None:
             print("  Error: NotionService is not initialized in the app context.")
             sys.exit(1)
+
+        tasks = notion_service.get_all_tasks()
+        if 'error' in tasks:
             print(f"  Error fetching Notion tasks: {tasks['error']}")
-            # Decide if we should exit or continue
-            # For now, we'll print the error and exit
-            print("Data synchronization failed due to an error with Notion tasks. Exiting with code 1.")
-            sys.exit(1) 
             # Decide if we should exit or continue
             # For now, we'll print the error and exit
             sys.exit(1) 
         
-        print(f"  Successfully fetched {len(tasks.get('results', []))} tasks from Notion.")
         print(f"  Successfully fetched {len(tasks.get('results', []))} tasks from Notion.")
 
         # --- 2. Sync data to Airtable (Placeholder) ---
