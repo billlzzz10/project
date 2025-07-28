@@ -2,7 +2,7 @@ name: Sync External Data
 
 on:
   schedule:
-    # Runs every 6 hours
+    # Runs every 
     - cron: '0 */6 * * *'
   workflow_dispatch: # Allows manual triggering
 
