@@ -3,79 +3,68 @@
 
 # Frontend related changes
 frontend:
-  - 'frontend/**/*'
-  - 'frontend/*'
+  - changed-files:
+    - any-glob-to-any-file: ['frontend/**/*', 'frontend/*']
 
 # Backend related changes  
 backend:
-  - 'backend/**/*'
-  - 'backend/*'
+  - changed-files:
+    - any-glob-to-any-file: ['backend/**/*', 'backend/*']
 
 # API Gateway related changes
 api-gateway:
-  - 'api_gateway/**/*'
-  - 'api_gateway/*'
+  - changed-files:
+    - any-glob-to-any-file: ['api_gateway/**/*', 'api_gateway/*']
 
 # Image Generation Service related changes
 image-generation:
-  - 'image-generation-service/**/*'
-  - 'image-generation-service/*'
+  - changed-files:
+    - any-glob-to-any-file: ['image-generation-service/**/*', 'image-generation-service/*']
 
 # RAG Model Service related changes
 rag-model:
-  - 'rag_model_service/**/*'
-  - 'rag_model_service/*'
+  - changed-files:
+    - any-glob-to-any-file: ['rag_model_service/**/*', 'rag_model_service/*']
 
 # Chrome Extension related changes
 extension:
-  - 'ai-assistant-extension/**/*'
-  - 'ai-assistant-extension/*'
+  - changed-files:
+    - any-glob-to-any-file: ['ai-assistant-extension/**/*', 'ai-assistant-extension/*']
 
 # Documentation changes
 documentation:
-  - '**/*.md'
-  - 'docs/**/*'
-  - '*.md'
+  - changed-files:
+    - any-glob-to-any-file: ['**/*.md', 'docs/**/*', '*.md']
 
 # GitHub Actions and workflows
 github-actions:
-  - '.github/**/*'
-  - '.github/workflows/*'
+  - changed-files:
+    - any-glob-to-any-file: ['.github/**/*', '.github/workflows/*']
 
 # Docker related changes
 docker:
-  - '**/Dockerfile'
-  - 'docker-compose.yml'
-  - 'docker-compose.*.yml'
+  - changed-files:
+    - any-glob-to-any-file: ['**/Dockerfile', 'docker-compose.yml', 'docker-compose.*.yml']
 
 # Dependencies
 dependencies:
-  - 'package.json'
-  - 'package-lock.json'
-  - 'requirements.txt'
-  - 'Pipfile'
-  - 'Pipfile.lock'
-  - 'yarn.lock'
+  - changed-files:
+    - any-glob-to-any-file: ['package.json', 'package-lock.json', 'requirements.txt', 'Pipfile', 'Pipfile.lock', 'yarn.lock']
 
 # Configuration files
 config:
-  - '**/*.env*'
-  - '**/*.config.*'
-  - '.gitignore'
-  - '.dockerignore'
+  - changed-files:
+    - any-glob-to-any-file: ['**/*.env*', '**/*.config.*', '.gitignore', '.dockerignore']
 
 # Security related
 security:
-  - 'SECURITY.md'
-  - '**/*security*'
-  - '**/*auth*'
+  - changed-files:
+    - any-glob-to-any-file: ['SECURITY.md', '**/*security*', '**/*auth*']
 
 # Testing
 testing:
-  - '**/*test*'
-  - '**/*spec*'
-  - '**/test/**/*'
-  - '**/tests/**/*'
+  - changed-files:
+    - any-glob-to-any-file: ['**/*test*', '**/*spec*', '**/test/**/*', '**/tests/**/*']
 
 # Bug fix
 bug:
