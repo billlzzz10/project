@@ -45,6 +45,9 @@ jobs:
           AIRTABLE_PROJECTS_BASE_ID: ${{ secrets.AIRTABLE_PROJECTS_BASE_ID }}
           AIRTABLE_NOVEL_BASE_ID: ${{ secrets.AIRTABLE_NOVEL_BASE_ID }}
         run: |
+          # Create the instance directory if it doesn't exist
+          mkdir -p backend/instance
+          
           # Create the credentials file from the secret
           echo "$GOOGLE_APPLICATION_CREDENTIALS_JSON" > backend/instance/google_credentials.json
           export GOOGLE_APPLICATION_CREDENTIALS=backend/instance/google_credentials.json

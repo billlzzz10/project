@@ -1,0 +1,221 @@
+name: Deploy Documentation to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'docs/**'
+      - '*.md'
+      - '.github/workflows/docs.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  build-docs:
+    name: Build Documentation
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Create documentation site
+        run: |
+          mkdir -p _site
+          
+          # Create a simple HTML documentation site
+          cat > _site/index.html << 'EOF'
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+              <meta charset="UTF-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <title>AI Business App Documentation</title>
+              <style>
+                  body {
+                      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                      line-height: 1.6;
+                      max-width: 1200px;
+                      margin: 0 auto;
+                      padding: 20px;
+                      background: #f5f5f5;
+                  }
+                  .container {
+                      background: white;
+                      padding: 30px;
+                      border-radius: 8px;
+                      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+                  }
+                  h1 { color: #2c3e50; }
+                  h2 { color: #34495e; border-bottom: 2px solid #3498db; padding-bottom: 10px; }
+                  .service-grid {
+                      display: grid;
+                      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+                      gap: 20px;
+                      margin: 20px 0;
+                  }
+                  .service-card {
+                      background: #f8f9fa;
+                      padding: 20px;
+                      border-radius: 6px;
+                      border-left: 4px solid #3498db;
+                  }
+                  .badge {
+                      background: #3498db;
+                      color: white;
+                      padding: 4px 8px;
+                      border-radius: 4px;
+                      font-size: 0.8em;
+                  }
+                  .architecture-diagram {
+                      background: #ecf0f1;
+                      padding: 20px;
+                      border-radius: 6px;
+                      text-align: center;
+                      margin: 20px 0;
+                  }
+                  code {
+                      background: #2c3e50;
+                      color: #ecf0f1;
+                      padding: 2px 6px;
+                      border-radius: 3px;
+                  }
+                  pre {
+                      background: #2c3e50;
+                      color: #ecf0f1;
+                      padding: 20px;
+                      border-radius: 6px;
+                      overflow-x: auto;
+                  }
+              </style>
+          </head>
+          <body>
+              <div class="container">
+                  <h1>🤖 AI Business App Documentation</h1>
+                  
+                  <p>Welcome to the AI Business App - a comprehensive microservices-based application for AI-powered business solutions.</p>
+                  
+                  <h2>🏗️ Architecture</h2>
+                  <div class="architecture-diagram">
+                      <h3>Microservices Architecture</h3>
+                      <p><strong>Frontend (React)</strong> ↔ <strong>API Gateway (FastAPI)</strong> ↔ <strong>Backend Services</strong></p>
+                  </div>
+                  
+                  <div class="service-grid">
+                      <div class="service-card">
+                          <h3>🚪 API Gateway</h3>
+                          <span class="badge">FastAPI</span>
+                          <p>Single entry point for all external traffic. Routes requests to appropriate downstream services.</p>
+                          <p><strong>Port:</strong> 8080</p>
+                      </div>
+                      
+                      <div class="service-card">
+                          <h3>⚙️ Backend Service</h3>
+                          <span class="badge">Flask</span>
+                          <p>Core business logic, database interactions, and integrations with Notion and Airtable.</p>
+                          <p><strong>Port:</strong> 5000</p>
+                      </div>
+                      
+                      <div class="service-card">
+                          <h3>🎨 Image Generation</h3>
+                          <span class="badge">FastAPI</span>
+                          <p>Dedicated microservice for generating images using Vertex AI.</p>
+                          <p><strong>Port:</strong> 8001</p>
+                      </div>
+                      
+                      <div class="service-card">
+                          <h3>🧠 RAG Model Service</h3>
+                          <span class="badge">FastAPI</span>
+                          <p>Retrieval-Augmented Generation workflows using LangChain and Pinecone.</p>
+                          <p><strong>Port:</strong> 8002</p>
+                      </div>
+                      
+                      <div class="service-card">
+                          <h3>🌐 Frontend</h3>
+                          <span class="badge">React</span>
+                          <p>User interface that communicates with the API Gateway.</p>
+                          <p><strong>Port:</strong> 3000</p>
+                      </div>
+                      
+                      <div class="service-card">
+                          <h3>🔧 Chrome Extension</h3>
+                          <span class="badge">JavaScript</span>
+                          <p>AI Assistant Chrome Extension for enhanced productivity.</p>
+                          <p><strong>Type:</strong> Browser Extension</p>
+                      </div>
+                  </div>
+                  
+                  <h2>🚀 Quick Start</h2>
+                  <pre><code># Clone the repository
+          git clone https://github.com/billlzzz10/project.git
+          cd project
+          
+          # Set up environment variables for each service
+          cp backend/.env.template backend/.env
+          # Edit backend/.env with your configuration
+          
+          # Run the full application with Docker Compose
+          docker-compose up --build
+          
+          # Access the application
+          # Frontend: http://localhost:3000
+          # API Gateway: http://localhost:8080
+          # Backend: http://localhost:5000</code></pre>
+                  
+                  <h2>📚 Service Documentation</h2>
+                  <ul>
+                      <li><strong>API Gateway:</strong> Interactive API docs at <code>http://localhost:8080/docs</code></li>
+                      <li><strong>Image Generation:</strong> API docs at <code>http://localhost:8001/docs</code></li>
+                      <li><strong>RAG Model Service:</strong> API docs at <code>http://localhost:8002/docs</code></li>
+                  </ul>
+                  
+                  <h2>🔧 Development</h2>
+                  <p>Each service can be developed independently. See individual README files in each service directory for specific development instructions.</p>
+                  
+                  <h2>🛡️ Security</h2>
+                  <p>This project includes automated security scanning and follows best practices. See <code>SECURITY.md</code> for security guidelines.</p>
+                  
+                  <h2>🤝 Contributing</h2>
+                  <p>We welcome contributions! Please check our GitHub Actions workflows for automated testing and code quality checks.</p>
+                  
+                  <footer style="margin-top: 40px; text-align: center; color: #7f8c8d;">
+                      <p>Generated automatically from repository documentation • <a href="https://github.com/billlzzz10/project">View on GitHub</a></p>
+                  </footer>
+              </div>
+          </body>
+          </html>
+          EOF
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '_site'
+
+  deploy:
+    name: Deploy to GitHub Pages
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build-docs
+    
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

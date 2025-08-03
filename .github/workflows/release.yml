@@ -1,0 +1,149 @@
+name: Release Automation
+
+on:
+  push:
+    tags:
+      - 'v*'  # Triggers on version tags like v1.0.0
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version (e.g., v1.0.0)'
+        required: true
+        type: string
+
+jobs:
+  create-release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Fetch all history for changelog generation
+
+      - name: Set up Node.js for frontend
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Set up Python for backend
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Build frontend
+        run: |
+          cd frontend
+          npm ci
+          npm run build
+
+      - name: Install backend dependencies
+        run: |
+          cd backend
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Build Docker images
+        run: |
+          docker build -t ai-business-app-backend:${{ github.ref_name }} ./backend
+          docker build -t ai-business-app-frontend:${{ github.ref_name }} ./frontend
+          docker build -t ai-business-app-api-gateway:${{ github.ref_name }} ./api_gateway
+          docker build -t ai-business-app-image-generation:${{ github.ref_name }} ./image-generation-service
+
+      - name: Generate changelog
+        id: changelog
+        uses: metcalfc/changelog-generator@v4.3.1
+        with:
+          myToken: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref_name }}
+          release_name: Release ${{ github.ref_name }}
+          body: |
+            ## AI Business App Release ${{ github.ref_name }}
+            
+            ### What's Changed
+            ${{ steps.changelog.outputs.changelog }}
+            
+            ### Docker Images
+            - Backend: `ai-business-app-backend:${{ github.ref_name }}`
+            - Frontend: `ai-business-app-frontend:${{ github.ref_name }}`
+            - API Gateway: `ai-business-app-api-gateway:${{ github.ref_name }}`
+            - Image Generation Service: `ai-business-app-image-generation:${{ github.ref_name }}`
+            
+            ### Deployment
+            Use the provided `docker-compose.yml` file with these image tags for deployment.
+          draft: false
+          prerelease: false
+
+      - name: Create deployment package
+        run: |
+          mkdir -p release-package
+          cp docker-compose.yml release-package/
+          cp -r docs release-package/
+          cp README.md release-package/
+          cp SECURITY.md release-package/
+          
+          # Create deployment guide
+          cat > release-package/DEPLOYMENT.md << EOF
+          # AI Business App Deployment Guide
+          
+          ## Quick Start
+          1. Copy the \`docker-compose.yml\` file to your server
+          2. Create a \`.env\` file with your configuration (see backend/.env.template)
+          3. Run: \`docker-compose up -d\`
+          
+          ## Docker Images
+          - Backend: ai-business-app-backend:${{ github.ref_name }}
+          - Frontend: ai-business-app-frontend:${{ github.ref_name }}
+          - API Gateway: ai-business-app-api-gateway:${{ github.ref_name }}
+          - Image Generation Service: ai-business-app-image-generation:${{ github.ref_name }}
+          
+          For detailed deployment instructions, see the docs/ directory.
+          EOF
+          
+          tar -czf ai-business-app-${{ github.ref_name }}.tar.gz release-package/
+
+      - name: Upload release package
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./ai-business-app-${{ github.ref_name }}.tar.gz
+          asset_name: ai-business-app-${{ github.ref_name }}.tar.gz
+          asset_content_type: application/gzip
+
+  notify-deployment:
+    name: Notify Deployment
+    needs: create-release
+    runs-on: ubuntu-latest
+    if: always() && needs.create-release.result == 'success'
+    
+    steps:
+      - name: Send deployment notification
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `🚀 New Release Available: ${context.ref.replace('refs/tags/', '')}`,
+              body: `A new release has been created and is ready for deployment.
+              
+              **Release:** ${context.ref.replace('refs/tags/', '')}
+              **Docker Images:** Ready for deployment
+              **Deployment Package:** Available in release assets
+              
+              Please review and deploy when ready.`,
+              labels: ['deployment', 'release']
+            });
