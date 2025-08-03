@@ -32,7 +32,7 @@ from .routes.notion import notion_bp
 
 def create_app(config_object=DevelopmentConfig):
     """Create and configure an instance of the Flask application."""
-    app = Flask(__name__, static_folder='../../frontend/build', static_url_path='/')
+    app = Flask(__name__, static_folder="../../frontend/build", static_url_path="/")
     app.config.from_object(config_object)
 
     # Enable CORS
@@ -49,6 +49,7 @@ def create_app(config_object=DevelopmentConfig):
             app.rag_service = EnhancedRAGService()
         except Exception as e:
             import logging
+
             logging.error(f"Failed to initialize EnhancedRAGService: {e}")
             app.rag_service = None
         app.integration_manager = IntegrationManager()
@@ -74,22 +75,24 @@ def create_app(config_object=DevelopmentConfig):
     with app.app_context():
         # Import all models to ensure they are registered with SQLAlchemy
         from . import models
+
         # Create database tables for our data models
         db.create_all()
 
-    @app.route('/health')
+    @app.route("/health")
     def health_check():
         return "OK", 200
 
-    @app.route('/', defaults={'path': ''})
-    @app.route('/<path:path>')
+    @app.route("/", defaults={"path": ""})
+    @app.route("/<path:path>")
     def serve(path):
-        if path != "" and os.path.exists(app.static_folder + '/' + path):
+        if path != "" and os.path.exists(app.static_folder + "/" + path):
             return send_from_directory(app.static_folder, path)
         else:
-            return send_from_directory(app.static_folder, 'index.html')
+            return send_from_directory(app.static_folder, "index.html")
 
     return app
+
 
 # To run this app:
 # 1. Set the FLASK_APP environment variable: export FLASK_APP=src.main

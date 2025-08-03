@@ -1,2 +1,1 @@
 # Image Generation Microservice
-

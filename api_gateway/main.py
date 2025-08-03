@@ -7,9 +7,12 @@ app = FastAPI(
     version="0.1.0",
 )
 
+
 @app.get("/", summary="Health Check", tags=["System"])
 def read_root():
     """
     Check if the API Gateway is operational.
     """
-    return JSONResponse(content={"status": "ok", "message": "API Gateway is operational."})
+    return JSONResponse(
+        content={"status": "ok", "message": "API Gateway is operational."}
+    )
