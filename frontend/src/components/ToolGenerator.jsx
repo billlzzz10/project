@@ -24,7 +24,7 @@ import {
 // API_BASE is configurable via VITE_API_BASE environment variable.
 // Default is http://localhost:5001/api (previously port 5000).
 // If your backend runs on a different port, set VITE_API_BASE accordingly in your .env file.
-const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:5001/api'
+const API_BASE = process.env.REACT_APP_API_BASE || 'http://localhost:5001/api'
 
 export default function ToolGenerator() {
   const [tools, setTools] = useState([])
