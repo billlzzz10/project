@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
-import { Badge } from '@/components/ui/badge'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Button } from './ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
+import { Input } from './ui/input'
+import { Textarea } from './ui/textarea'
+import { Badge } from './ui/badge'
+import { ScrollArea } from './ui/scroll-area'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs'
 import { 
   Plus, 
   Zap, 
@@ -24,7 +24,7 @@ import {
 // API_BASE is configurable via VITE_API_BASE environment variable.
 // Default is http://localhost:5001/api (previously port 5000).
 // If your backend runs on a different port, set VITE_API_BASE accordingly in your .env file.
-const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:5001/api'
+const API_BASE = process.env.REACT_APP_API_BASE || 'http://localhost:5001/api'
 
 export default function ToolGenerator() {
   const [tools, setTools] = useState([])

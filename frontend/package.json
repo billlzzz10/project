@@ -2,7 +2,7 @@
   "name": "ai-business-app-frontend",
   "version": "1.0.0",
   "description": "Frontend for AI Business App",
-  "main": "App.jsx",
+  "main": "src/index.js",
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
@@ -12,29 +12,34 @@
     "lint": "echo 'Linting disabled - using build process for validation'"
   },
   "dependencies": {
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "react-router-dom": "^6.8.0",
-    "@mui/material": "^5.11.0",
-    "@mui/icons-material": "^5.11.0",
     "@emotion/react": "^11.10.5",
     "@emotion/styled": "^11.10.5",
-    "recharts": "^2.5.0",
-    "reactflow": "^11.10.1",
-    "socket.io-client": "^4.6.1",
+    "@mui/icons-material": "^5.11.0",
+    "@mui/material": "^5.11.0",
     "axios": "^1.3.0",
-    "react-dropzone": "^14.2.3",
-    "react-markdown": "^8.0.5",
-    "prismjs": "^1.29.0",
-    "react-syntax-highlighter": "^15.5.0",
-    "lodash": "^4.17.21",
     "date-fns": "^2.29.3",
-    "lucide-react": "^0.263.1"
+    "lodash": "^4.17.21",
+    "lucide-react": "^0.536.0",
+    "prismjs": "^1.29.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-dropzone": "^14.2.3",
+    "react-force-graph-2d": "^1.28.0",
+    "react-markdown": "^8.0.5",
+    "react-router-dom": "^6.8.0",
+    "react-syntax-highlighter": "^15.5.0",
+"lodash": version 4.17.21 or higher,
+"date-fns": version 2.29.3 or higher,
+"lucide-react": version 0.263.1 or higher,
+"reactflow": version 11.10.1 or higher,
+"recharts": version 2.5.0 or higher,
+"socket.io-client": version 4.6.1 or higher.
+
   },
   "devDependencies": {
-    "react-scripts": "5.0.1",
     "@types/react": "^18.0.28",
     "@types/react-dom": "^18.0.11",
+    "react-scripts": "5.0.1",
     "typescript": "^4.9.5"
   },
   "browserslist": {

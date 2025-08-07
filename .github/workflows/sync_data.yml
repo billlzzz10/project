@@ -2,8 +2,6 @@ name: Sync External Data
 
 on:
   schedule:
-    # Runs every 
-    - cron: '0 */6 * * *'
   workflow_dispatch: # Allows manual triggering
 
 jobs:
