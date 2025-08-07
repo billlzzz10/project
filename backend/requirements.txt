@@ -23,7 +23,7 @@ beautifulsoup4==4.12.3
 markdown==3.6
 chardet==5.2.0
 Pillow
-python-multipart==0.0.9
+python-multipart==0.0.20
 celery==5.4.0
 redis==5.0.4
 flask-socketio==5.3.6
