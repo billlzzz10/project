@@ -2,10 +2,10 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from app.config import settings
 from app.models.schemas import (
-    ImageGenerationRequest, 
-    ImageGenerationResponse, 
-    ErrorResponse, 
-    HealthResponse
+    ImageGenerationRequest,
+    ImageGenerationResponse,
+    ErrorResponse,
+    HealthResponse,
 )
 from app.utils.helpers import validate_aspect_ratio, generate_cache_key
 from datetime import datetime
@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 app = FastAPI(
     title="Image Generation Microservice",
     description="A microservice for generating images using Vertex AI Imagen 2",
-    version="1.0.0"
+    version="1.0.0",
 )
 
 # Add CORS middleware
@@ -31,6 +31,7 @@ app.add_middleware(
 )
 
 from fastapi import Depends
+
 
 # Dependency injection for services
 def get_services():
@@ -58,8 +59,7 @@ async def health_check():
 
 @app.post("/v1/images/generate", response_model=ImageGenerationResponse)
 async def generate_image(
-    request: ImageGenerationRequest,
-    services=Depends(get_services)
+    request: ImageGenerationRequest, services=Depends(get_services)
 ):
     """
     Generate an image from text prompt using Vertex AI Imagen 2
@@ -69,7 +69,7 @@ async def generate_image(
         if request.aspect_ratio and not validate_aspect_ratio(request.aspect_ratio):
             raise HTTPException(
                 status_code=400,
-                detail="Invalid aspect ratio format. Use format like '1:1' or '16:9'"
+                detail="Invalid aspect ratio format. Use format like '1:1' or '16:9'",
             )
 
         image_generator, storage_service, cache_service = services
@@ -82,14 +82,12 @@ async def generate_image(
                 status="success",
                 from_cache=False,
                 image_url="https://via.placeholder.com/512x512.png?text=Demo+Mode",
-                created_at=datetime.now()
+                created_at=datetime.now(),
             )
 
         # Generate cache key
         cache_key = generate_cache_key(
-            request.prompt, 
-            request.style, 
-            request.aspect_ratio
+            request.prompt, request.style, request.aspect_ratio
         )
 
         # Check cache first
@@ -99,14 +97,12 @@ async def generate_image(
                 status="success",
                 from_cache=True,
                 image_url=cached_data["image_url"],
-                created_at=datetime.fromisoformat(cached_data["created_at"])
+                created_at=datetime.fromisoformat(cached_data["created_at"]),
             )
 
         # Generate new image
         image_bytes, image_format = image_generator.generate_image(
-            request.prompt,
-            request.style,
-            request.aspect_ratio or "1:1"
+            request.prompt, request.style, request.aspect_ratio or "1:1"
         )
 
         # Upload to storage
@@ -120,24 +116,18 @@ async def generate_image(
             status="success",
             from_cache=False,
             image_url=image_url,
-            created_at=created_at
+            created_at=created_at,
         )
 
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(
-            status_code=500,
-            detail=f"Internal server error: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
 
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(
-        "app.main:app",
-        host=settings.api_host,
-        port=settings.api_port,
-        reload=True
-    )
 
+    uvicorn.run(
+        "app.main:app", host=settings.api_host, port=settings.api_port, reload=True
+    )

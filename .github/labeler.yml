@@ -1,0 +1,79 @@
+# Configuration for the labeler action
+# https://github.com/actions/labeler
+
+# Frontend related changes
+frontend:
+  - changed-files:
+    - any-glob-to-any-file: ['frontend/**/*', 'frontend/*']
+
+# Backend related changes  
+backend:
+  - changed-files:
+    - any-glob-to-any-file: ['backend/**/*', 'backend/*']
+
+# API Gateway related changes
+api-gateway:
+  - changed-files:
+    - any-glob-to-any-file: ['api_gateway/**/*', 'api_gateway/*']
+
+# Image Generation Service related changes
+image-generation:
+  - changed-files:
+    - any-glob-to-any-file: ['image-generation-service/**/*', 'image-generation-service/*']
+
+# RAG Model Service related changes
+rag-model:
+  - changed-files:
+    - any-glob-to-any-file: ['rag_model_service/**/*', 'rag_model_service/*']
+
+# Chrome Extension related changes
+extension:
+  - changed-files:
+    - any-glob-to-any-file: ['ai-assistant-extension/**/*', 'ai-assistant-extension/*']
+
+# Documentation changes
+documentation:
+  - changed-files:
+    - any-glob-to-any-file: ['**/*.md', 'docs/**/*', '*.md']
+
+# GitHub Actions and workflows
+github-actions:
+  - changed-files:
+    - any-glob-to-any-file: ['.github/**/*', '.github/workflows/*']
+
+# Docker related changes
+docker:
+  - changed-files:
+    - any-glob-to-any-file: ['**/Dockerfile', 'docker-compose.yml', 'docker-compose.*.yml']
+
+# Dependencies
+dependencies:
+  - changed-files:
+    - any-glob-to-any-file: ['package.json', 'package-lock.json', 'requirements.txt', 'Pipfile', 'Pipfile.lock', 'yarn.lock']
+
+# Configuration files
+config:
+  - changed-files:
+    - any-glob-to-any-file: ['**/*.env*', '**/*.config.*', '.gitignore', '.dockerignore']
+
+# Security related
+security:
+  - changed-files:
+    - any-glob-to-any-file: ['SECURITY.md', '**/*security*', '**/*auth*']
+
+# Testing
+testing:
+  - changed-files:
+    - any-glob-to-any-file: ['**/*test*', '**/*spec*', '**/test/**/*', '**/tests/**/*']
+
+# Bug fix
+bug:
+  - any:
+    - title: '/fix|bug|issue/'
+    - body: '/fix|bug|issue/'
+
+# Enhancement  
+enhancement:
+  - any:
+    - title: '/feature|enhancement|improve/'
+    - body: '/feature|enhancement|improve/'

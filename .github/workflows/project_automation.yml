@@ -1,0 +1,20 @@
+name: Project Automation
+
+on:
+  issues:
+    types: [opened, closed, edited, assigned, unassigned, labeled, unlabeled]
+  pull_request:
+    types: [opened, closed, edited, assigned, unassigned, labeled, unlabeled, synchronize]
+  project_card:
+    types: [created, moved, deleted]
+
+jobs:
+  project_automation:
+    runs-on: ubuntu-latest
+    steps:
+      - name: GitHub Project Automation+
+        uses: alex-page/github-project-automation-plus@v0.9.0
+        with:
+          project: AI Business App Project Board
+          column: To Do
+          repo-token: ${{ secrets.GITHUB_TOKEN }}

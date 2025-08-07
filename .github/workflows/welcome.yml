@@ -1,0 +1,85 @@
+name: Welcome New Contributors
+
+on:
+  issues:
+    types: [opened]
+  pull_request_target:
+    types: [opened]
+
+permissions:
+  issues: write
+  pull-requests: write
+
+jobs:
+  welcome:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Welcome new contributors
+        uses: actions/github-script@v7
+        with:
+          script: |
+            // Check if this is the user's first issue/PR
+            const { data: issues } = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              creator: context.payload.sender.login,
+              state: 'all'
+            });
+            
+            const { data: prs } = await github.rest.pulls.list({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'all'
+            });
+            
+            const userPrs = prs.filter(pr => pr.user.login === context.payload.sender.login);
+            const isFirstContribution = issues.length <= 1 && userPrs.length <= 1;
+            
+            if (isFirstContribution) {
+              const welcomeMessage = `## 👋 Welcome to AI Business App!
+
+              Thank you for your ${context.eventName === 'issues' ? 'issue' : 'pull request'}! 
+
+              ${context.eventName === 'issues' ? 
+                `We appreciate you taking the time to report this. A maintainer will review it soon.
+
+              ### What happens next?
+              - 🏷️ Your issue will be automatically labeled
+              - 👀 A maintainer will review and respond
+              - 🔄 We may ask for additional information
+              
+              ### While you wait
+              - 📚 Check out our [documentation](https://billlzzz10.github.io/project)
+              - 💬 Join the [discussions](https://github.com/billlzzz10/project/discussions)
+              - ⭐ Star the repository if you find it useful!` :
+                `We're excited to review your contribution!
+
+              ### What happens next?
+              - 🏷️ Your PR will be automatically labeled
+              - 🔍 Automated checks will run
+              - 👀 A maintainer will review your changes
+              - 🔄 We may request changes or ask questions
+              
+              ### Make sure to
+              - ✅ Check that all CI checks pass
+              - 📝 Update documentation if needed
+              - ✅ Add tests for new functionality
+              - 🔄 Respond to any feedback from reviewers`}
+
+              Thank you for contributing to open source! 🎉`;
+
+              await github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: welcomeMessage
+              });
+              
+              // Add first-time-contributor label
+              await github.rest.issues.addLabels({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                labels: ['first-time-contributor']
+              });
+            }

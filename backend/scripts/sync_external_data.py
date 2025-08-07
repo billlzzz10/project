@@ -8,9 +8,11 @@ sys.path.append(str(Path(__file__).parent.parent))
 
 from src.main import create_app
 from src.services.notion_service import NotionService
+
 # We will create AirtableService later
-# from src.services.airtable_service import AirtableService 
+# from src.services.airtable_service import AirtableService
 # from src.services.external_integrations import GoogleSheetsService
+
 
 def run_sync():
     """
@@ -34,13 +36,15 @@ def run_sync():
             sys.exit(1)
 
         tasks = notion_service.get_all_tasks()
-        if 'error' in tasks:
+        if "error" in tasks:
             print(f"  Error fetching Notion tasks: {tasks['error']}")
             # Decide if we should exit or continue
             # For now, we'll print the error and exit
-            sys.exit(1) 
-        
-        print(f"  Successfully fetched {len(tasks.get('results', []))} tasks from Notion.")
+            sys.exit(1)
+
+        print(
+            f"  Successfully fetched {len(tasks.get('results', []))} tasks from Notion."
+        )
 
         # --- 2. Sync data to Airtable (Placeholder) ---
         print("\nSyncing data to Airtable (Placeholder)...")
@@ -48,7 +52,6 @@ def run_sync():
         # for task in tasks.get('results', []):
         #     airtable_service.create_or_update_task(task)
         print("  Airtable sync logic needs to be implemented.")
-
 
         # --- 3. Log sync results to Google Sheets (Placeholder) ---
         print("\nLogging sync results to Google Sheets (Placeholder)...")
@@ -61,7 +64,6 @@ def run_sync():
         # }]
         # gsheets_service.sync_data("sync_log", log_data)
         print("  Google Sheets logging logic needs to be implemented.")
-
 
         print(f"\nData sync finished at {datetime.utcnow().isoformat()} UTC.")
 
