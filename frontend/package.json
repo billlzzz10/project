@@ -28,13 +28,9 @@
     "react-markdown": "^8.0.5",
     "react-router-dom": "^6.8.0",
     "react-syntax-highlighter": "^15.5.0",
-"lodash": version 4.17.21 or higher,
-"date-fns": version 2.29.3 or higher,
-"lucide-react": version 0.263.1 or higher,
-"reactflow": version 11.10.1 or higher,
-"recharts": version 2.5.0 or higher,
-"socket.io-client": version 4.6.1 or higher.
-
+    "reactflow": "^11.10.1",
+    "recharts": "^2.5.0",
+    "socket.io-client": "^4.6.1"
   },
   "devDependencies": {
     "@types/react": "^18.0.28",
