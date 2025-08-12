@@ -17,7 +17,7 @@
     "@mui/icons-material": "^5.11.0",
     "@mui/material": "^5.11.0",
     "axios": "^1.3.0",
-    "date-fns": "^2.29.3",
+    "date-fns": "^4.1.0",
     "lodash": "^4.17.21",
     "lucide-react": "^0.536.0",
     "prismjs": "^1.29.0",
