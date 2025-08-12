@@ -16,7 +16,7 @@ huggingface-hub==0.22.2
 PyPDF2==3.0.1
 python-docx==1.2.0
 pandas==2.2.2
-scikit-learn==1.4.2
+scikit-learn==1.6.1
 nltk==3.8.1
 beautifulsoup4==4.12.3
 # lxml==5.2.1
