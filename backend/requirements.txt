@@ -24,7 +24,7 @@ markdown==3.8.2
 chardet==5.2.0
 Pillow
 python-multipart==0.0.20
-celery==5.4.0
+celery==5.5.3
 redis==6.4.0
 flask-socketio==5.5.1
 python-socketio==5.12.0
