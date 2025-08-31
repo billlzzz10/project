@@ -1,4 +1,3 @@
-import os
 import sys
 from datetime import datetime
 from pathlib import Path
@@ -32,15 +31,13 @@ def run_sync():
         print("Fetching data from Notion...")
 
         if notion_service is None:
-            print("  Error: NotionService is not initialized in the app context.")
-            sys.exit(1)
+            print("  NotionService is not initialized. Skipping sync.")
+            return
 
         tasks = notion_service.get_all_tasks()
         if "error" in tasks:
-            print(f"  Error fetching Notion tasks: {tasks['error']}")
-            # Decide if we should exit or continue
-            # For now, we'll print the error and exit
-            sys.exit(1)
+            print(f"  Warning: {tasks['error']}. Skipping sync.")
+            return
 
         print(
             f"  Successfully fetched {len(tasks.get('results', []))} tasks from Notion."
