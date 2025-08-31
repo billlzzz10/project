@@ -1,0 +1,55 @@
+name: Sync External Data
+
+on:
+  schedule:
+    - cron: '0 6 * * *'  # Run daily at 6 AM UTC
+  workflow_dispatch: # Allows manual triggering
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r backend/requirements.txt
+
+      - name: Run Sync Script
+        env:
+          # These secrets need to be configured in your GitHub repository settings
+          # Settings > Secrets and variables > Actions > New repository secret
+          FLASK_ENV: 'production'
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          PINECONE_API_KEY: ${{ secrets.PINECONE_API_KEY }}
+          PINECONE_ENV: ${{ secrets.PINECONE_ENV }}
+          PINECONE_INDEX_NAME: ${{ secrets.PINECONE_INDEX_NAME }}
+          NOTION_API_KEY: ${{ secrets.NOTION_API_KEY }}
+          AIRTABLE_API_KEY: ${{ secrets.AIRTABLE_API_KEY }}
+          GOOGLE_APPLICATION_CREDENTIALS_JSON: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS_JSON }}
+          # Pass all Notion DB IDs
+          NOTION_CHARACTERS_DB_ID: ${{ secrets.NOTION_CHARACTERS_DB_ID }}
+          NOTION_SCENES_DB_ID: ${{ secrets.NOTION_SCENES_DB_ID }}
+          NOTION_TASKS_DB_ID: ${{ secrets.NOTION_TASKS_DB_ID }}
+          # Pass all Airtable Base IDs
+          AIRTABLE_PROJECTS_BASE_ID: ${{ secrets.AIRTABLE_PROJECTS_BASE_ID }}
+          AIRTABLE_NOVEL_BASE_ID: ${{ secrets.AIRTABLE_NOVEL_BASE_ID }}
+        run: |
+          # Create the instance directory if it doesn't exist
+          mkdir -p backend/instance
+          
+          # Create the credentials file from the secret
+          echo "$GOOGLE_APPLICATION_CREDENTIALS_JSON" > backend/instance/google_credentials.json
+          export GOOGLE_APPLICATION_CREDENTIALS=backend/instance/google_credentials.json
+          
+          # Run the sync script
+          python backend/scripts/sync_external_data.py
